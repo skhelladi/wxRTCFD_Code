@@ -7,6 +7,47 @@ This repository presents a real-time CFD solver based on a "rough" representatio
 - drag-and-drop obstacles
 - postprocessing using: scalars (pressure, velocity, tracer), streamlines and velocity vectors
 
+## Getting Started
+ 	
+### Prerequisites
+
+First, make sure the following libraries are installed. Mainly
+
+- wxWidgets
+- OpenMP
+
+
+
+### Install an build
+#### 1. Using cmake command-line
+```
+git clone https://github.com/skhelladi/wxRTCFD_Code.git
+cd wxRTCFD_Code
+mkdir build
+cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+make -j
+```
+
+#### 2. Using CodeBlocks
+```
+git clone https://github.com/skhelladi/wxRTCFD_Code.git
+cd wxRTCFD_Code 
+codeblocks wxRTCFD_Code.cbp
+```
+then build.
+
+#### 3. Using Visual Studio Code 
+```
+git clone https://github.com/skhelladi/wxRTCFD_Code.git
+cd wxRTCFD_Code
+code .
+```
+then build.
+
+### Run the code
+Execute wxRTCFD_Code binary file in build directory.
+
 <!-- ## Tutorial -->
 
 <!-- [![Tutorial](https://img.youtube.com/vi/gvOE69KHmwU/0.jpg)](https://www.youtube.com/watch?v=gvOE69KHmwU) -->
@@ -25,6 +66,6 @@ This code is based on the theoretical developments and javascript code presented
 
 Link: https://matthias-research.github.io/pages/tenMinutePhysics/17-fluidSim.pdf
 
-and the Qt version of the same code developped by Sofiane KHELLADI
+and the Qt version of the same code developed by the same author.
 
 Link: https://github.com/skhelladi/RTCFD_Code
