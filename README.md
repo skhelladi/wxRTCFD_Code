@@ -74,6 +74,6 @@ This code is based on the theoretical developments and javascript code presented
 
 Link: https://matthias-research.github.io/pages/tenMinutePhysics/17-fluidSim.pdf
 
-and the Qt version of the same code developed by the same author.
+and the Qt version of the same code developed by Sofiane KHELLADI
 
 Link: https://github.com/skhelladi/RTCFD_Code
