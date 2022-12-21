@@ -48,6 +48,14 @@ then build.
 ### Run the code
 Execute wxRTCFD_Code binary file in build directory.
 
+
+## Screenshots
+________________________
+<img src="doc/fig_1.png" width="400" height="200" />    <img src="doc/fig_2.png" width="400" height="200" /> 
+<img src="doc/fig_3.png" width="400" height="200" /> <img src="doc/fig_4.png" width="400" height="200" /> 
+<img src="doc/fig_6.png" width="400" height="200" /> <img src="doc/fig_7.png" width="400" height="200" />
+_______________________
+
 <!-- ## Tutorial -->
 
 <!-- [![Tutorial](https://img.youtube.com/vi/gvOE69KHmwU/0.jpg)](https://www.youtube.com/watch?v=gvOE69KHmwU) -->
