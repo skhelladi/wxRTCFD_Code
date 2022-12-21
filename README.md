@@ -19,7 +19,7 @@ First, make sure the following libraries are installed. Mainly
 
 
 ### Install an build
-#### 1. Using cmake command-line
+#### 1. Using cmake (command-line)
 ```
 git clone https://github.com/skhelladi/wxRTCFD_Code.git
 cd wxRTCFD_Code
