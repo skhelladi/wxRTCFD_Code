@@ -1,1 +1,11 @@
 build/
+bin/Debug/wxRTCFD_Code
+obj/Debug/src/draw.o
+obj/Debug/src/fluid.o
+obj/Debug/src/GUIFrame.o
+obj/Debug/src/region.o
+obj/Debug/src/settings.o
+obj/Debug/src/wxRTCFD_Code_App.o
+obj/Debug/src/wxRTCFD_Code_Main.o
+wxRTCFD_Code.depend
+wxRTCFD_Code.layout
