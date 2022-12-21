@@ -1,5 +1,5 @@
 /***************************************************************
- * Name:      wxRTCFD_Code_FBMain.h
+ * Name:      wxRTCFD_Code_Main.h
  * Purpose:   Defines Application Frame
  * Author:    Sofiane KHELLADI (sofiane.khelladi@gmail.com)
  * Created:   2022-12-19
@@ -7,21 +7,21 @@
  * License:
  **************************************************************/
 
-#ifndef WXRTCFD_CODE_FBMAIN_H
-#define WXRTCFD_CODE_FBMAIN_H
+#ifndef WXRTCFD_CODE_MAIN_H
+#define WXRTCFD_CODE_MAIN_H
 
-#include "wxRTCFD_Code_FBApp.h"
+#include "wxRTCFD_Code_App.h"
 
 #include "GUIFrame.h"
 
 #include "region.h"
 #include "draw.h"
 
-class wxRTCFD_Code_FBFrame : public GUIFrame
+class wxRTCFD_Code_Frame : public GUIFrame
 {
 public:
-    wxRTCFD_Code_FBFrame(wxFrame *frame);
-    ~wxRTCFD_Code_FBFrame();
+    wxRTCFD_Code_Frame(wxFrame *frame);
+    ~wxRTCFD_Code_Frame();
     void simulate();
     void update();
     shared_ptr<Region> region;

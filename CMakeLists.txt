@@ -24,13 +24,13 @@ include_directories("${PROJECT_SOURCE_DIR}/include")
 set(PROJECT_SOURCES
     include/GUIFrame.h
     include/settings.h
-    include/wxRTCFD_Code_FBApp.h
-    include/wxRTCFD_Code_FBMain.h
+    include/wxRTCFD_Code_App.h
+    include/wxRTCFD_Code_Main.h
     src/GUIFrame.cpp
     src/WxWizFrame.fbp
     src/settings.cpp
-    src/wxRTCFD_Code_FBApp.cpp
-    src/wxRTCFD_Code_FBMain.cpp
+    src/wxRTCFD_Code_App.cpp
+    src/wxRTCFD_Code_Main.cpp
     src/fluid.cpp
     include/fluid.h
     src/region.cpp

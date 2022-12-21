@@ -15,7 +15,7 @@
 #pragma hdrstop
 #endif //__BORLANDC__
 
-#include "wxRTCFD_Code_FBMain.h"
+#include "wxRTCFD_Code_Main.h"
 
 
 
@@ -50,7 +50,7 @@ wxString wxbuildinfo(wxbuildinfoformat format)
 }
 
 
-wxRTCFD_Code_FBFrame::wxRTCFD_Code_FBFrame(wxFrame *frame)
+wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     : GUIFrame(frame)
 {
 #if wxUSE_STATUSBAR
@@ -84,34 +84,34 @@ wxRTCFD_Code_FBFrame::wxRTCFD_Code_FBFrame(wxFrame *frame)
     compute = true;
 }
 
-wxRTCFD_Code_FBFrame::~wxRTCFD_Code_FBFrame()
+wxRTCFD_Code_Frame::~wxRTCFD_Code_Frame()
 {
     delete draw;
 }
 
-void wxRTCFD_Code_FBFrame::simulate()
+void wxRTCFD_Code_Frame::simulate()
 {
     if (!draw->region->paused)
         draw->region->fluid->simulate(draw->region->dt, draw->region->gravity, draw->region->numIters);
     draw->region->frameNr++;
 }
 
-void wxRTCFD_Code_FBFrame::update()
+void wxRTCFD_Code_Frame::update()
 {
     simulate();
 }
 
-void wxRTCFD_Code_FBFrame::OnClose(wxCloseEvent &event)
+void wxRTCFD_Code_Frame::OnClose(wxCloseEvent &event)
 {
     Destroy();
 }
 
-void wxRTCFD_Code_FBFrame::OnQuit(wxCommandEvent &event)
+void wxRTCFD_Code_Frame::OnQuit(wxCommandEvent &event)
 {
     Destroy();
 }
 
-void wxRTCFD_Code_FBFrame::OnAbout(wxCommandEvent &event)
+void wxRTCFD_Code_Frame::OnAbout(wxCommandEvent &event)
 {
     wxString msg = "RTCFD_Code 0.01beta\n\n"
                    "- Built in 19.12.2022 under GPL3 LICENSE\n"
@@ -123,7 +123,7 @@ void wxRTCFD_Code_FBFrame::OnAbout(wxCommandEvent &event)
 }
 
 
-void wxRTCFD_Code_FBFrame::onRunButtonClick(wxCommandEvent& event)
+void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
 {
     int regionNr = m_propertyGridItem_case->GetValue().GetLong();
 
@@ -194,7 +194,7 @@ void wxRTCFD_Code_FBFrame::onRunButtonClick(wxCommandEvent& event)
 //    update();
 }
 
-void wxRTCFD_Code_FBFrame::onCheckBoxChecked(wxCommandEvent& event)
+void wxRTCFD_Code_Frame::onCheckBoxChecked(wxCommandEvent& event)
 {
     draw->region->paused = event.IsChecked();
     if(draw->region->paused)
@@ -211,7 +211,7 @@ void wxRTCFD_Code_FBFrame::onCheckBoxChecked(wxCommandEvent& event)
     }
 }
 
-void wxRTCFD_Code_FBFrame::onPropertyGridChanged(wxPropertyGridEvent& event)
+void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent& event)
 {
     wxPGProperty* property = event.GetProperty();
     // Do nothing if event did not have associated property
@@ -251,7 +251,7 @@ void wxRTCFD_Code_FBFrame::onPropertyGridChanged(wxPropertyGridEvent& event)
 //    wxMessageBox(msg, _("property value"));
 }
 
-void wxRTCFD_Code_FBFrame::OnCasePropertyChanged(int value)
+void wxRTCFD_Code_Frame::OnCasePropertyChanged(int value)
 {
     switch(value)
     {
@@ -278,12 +278,12 @@ void wxRTCFD_Code_FBFrame::OnCasePropertyChanged(int value)
     }
 }
 
-void wxRTCFD_Code_FBFrame::OnObstaclePropertyChanged(int value)
+void wxRTCFD_Code_Frame::OnObstaclePropertyChanged(int value)
 {
 
 }
 
-void wxRTCFD_Code_FBFrame::OnScalarPropertyChanged(int value)
+void wxRTCFD_Code_Frame::OnScalarPropertyChanged(int value)
 {
     switch(value)
     {
@@ -330,42 +330,42 @@ void wxRTCFD_Code_FBFrame::OnScalarPropertyChanged(int value)
     }
 }
 
-void wxRTCFD_Code_FBFrame::OnObstaclePositionPropertyChanged(bool value)
+void wxRTCFD_Code_Frame::OnObstaclePositionPropertyChanged(bool value)
 {
     draw->region->showObstaclePosition= value;
 }
 
-void wxRTCFD_Code_FBFrame::OnTracerPropertyChanged(bool value)
+void wxRTCFD_Code_Frame::OnTracerPropertyChanged(bool value)
 {
     draw->region->showTracer = value;
 }
 
-void wxRTCFD_Code_FBFrame::OnStreamlinesPropertyChanged(bool value)
+void wxRTCFD_Code_Frame::OnStreamlinesPropertyChanged(bool value)
 {
     draw->region->showStreamlines = value;
 }
 
-void wxRTCFD_Code_FBFrame::OnVelocityVectorsPropertyChanged(bool value)
+void wxRTCFD_Code_Frame::OnVelocityVectorsPropertyChanged(bool value)
 {
     draw->region->showVelocityVectors = value;
 
 }
 
-void wxRTCFD_Code_FBFrame::OnDensityPropertyChanged(double value)
+void wxRTCFD_Code_Frame::OnDensityPropertyChanged(double value)
 {
     draw->region->fluid->density = value;
 }
 
-void wxRTCFD_Code_FBFrame::OnOverrelaxationPropertyChanged(double value)
+void wxRTCFD_Code_Frame::OnOverrelaxationPropertyChanged(double value)
 {
     draw->region->overRelaxation = value;
 }
 
-void wxRTCFD_Code_FBFrame::OnResolutionPropertyChanged(int value)
+void wxRTCFD_Code_Frame::OnResolutionPropertyChanged(int value)
 {
     draw->region->resolution = value;
 }
-void wxRTCFD_Code_FBFrame::OnNumThreadsPropertyChanged(int value)
+void wxRTCFD_Code_Frame::OnNumThreadsPropertyChanged(int value)
 {
     draw->region->fluid->numThreads = value;
 }

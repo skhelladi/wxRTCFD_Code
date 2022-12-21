@@ -83,7 +83,7 @@ class GUIFrame : public wxFrame
 
 	public:
 
-		GUIFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("RTCFD Code"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1095,534 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
+		GUIFrame( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxT("RTCFD Code"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 1200,640 ), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL );
 
 		~GUIFrame();
 
