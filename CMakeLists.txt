@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(RTCFD_Code VERSION 0.1 LANGUAGES CXX)
+project(RTCFD_Code VERSION 0.01 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -41,10 +41,10 @@ set(PROJECT_SOURCES
 
 add_executable(RTCFD_Code ${PROJECT_SOURCES})
 
-target_link_libraries(RTCFD_Code PRIVATE ${wxWidgets_LIBRARIES} -O3 -fopenmp)
+target_link_libraries(RTCFD_Code PRIVATE ${wxWidgets_LIBRARIES} -O3 -fopenmp -ltbb)
 
 set_target_properties(RTCFD_Code PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+    MACOSX_BUNDLE_GUI_IDENTIFIER sofiane.khelladi.page
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE

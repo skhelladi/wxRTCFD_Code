@@ -3,7 +3,17 @@
 #include <iostream>
 #include "fluid.h"
 
+enum OBJ {CYLINDER, SQUARE, DIAMOND, NACA, ROTOR};
+
+// #define CALL_SET_OBSTACLE(object,ptrToMember)  (object.*ptrToMember)
+
+// class Region;
+// typedef   void (Region::*SET_OBSTACLE)(double, double, bool);
+
+
+
 using namespace std;
+
 
 class Region
 {
@@ -23,6 +33,11 @@ public:
 
     void setupRegion(int _RegionNr = 0, double _overRelaxation=1.9, int _resolution=50, double _density=1000, int _numThreads=4);
     void setObstacle(double x, double y, bool reset);
+    void setObstacleCylinder(double x, double y, bool reset);
+    void setObstacleSquare(double x, double y, bool reset);
+    void setObstacleDiamond(double x, double y, bool reset);
+    void setObstacleNaca(double x, double y, bool reset);
+    void setObstacleRotor(double x, double y, bool reset);
     void updateRegionSize(int _height, int _width);
     void update();
 
@@ -36,7 +51,7 @@ public:
     double overRelaxation= 1.9;
     double obstacleX= 0.0;
     double obstacleY= 0.0;
-    double obstacleRadius= 0.15;
+    double characteristic_length= 0.15;
     bool paused= false;
     int RegionNr= 0;
     bool showObstacle= false;
@@ -58,6 +73,8 @@ public:
     int resolution;
     int numThreads;
 
+    OBJ obstacle;
 };
+
 
 #endif // Region_H

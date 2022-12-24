@@ -37,6 +37,8 @@ public:
     void onMouseReleased(wxMouseEvent& event);
     void animate(wxTimerEvent& event);
 
+    //OBJ object=CYLINDER;
+
 //     wxTimer *m_timer;
     int loop;
     wxBitmap m_Bitmap;

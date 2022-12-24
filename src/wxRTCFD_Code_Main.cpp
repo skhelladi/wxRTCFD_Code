@@ -17,19 +17,18 @@
 
 #include "wxRTCFD_Code_Main.h"
 
-
-
-//helper functions
+// helper functions
 enum wxbuildinfoformat
 {
-    short_f, long_f
+    short_f,
+    long_f
 };
 
 wxString wxbuildinfo(wxbuildinfoformat format)
 {
     wxString wxbuild(wxVERSION_STRING);
 
-    if (format == long_f )
+    if (format == long_f)
     {
 #if defined(__WXMSW__)
         wxbuild << _T("-Windows");
@@ -49,14 +48,13 @@ wxString wxbuildinfo(wxbuildinfoformat format)
     return wxbuild;
 }
 
-
 wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     : GUIFrame(frame)
 {
 #if wxUSE_STATUSBAR
     statusBar->SetStatusText(_("RTCFDCode v0.01b"), 0);
 #endif
-//! initialization
+    //! initialization
 
     m_propertyGridItem_case->SetValue("Wind tunnel");
     m_propertyGridItem_tracer->SetValue(true);
@@ -65,21 +63,20 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     m_propertyGridItem_resolution->SetValue(50);
     m_propertyGridItem_nb_cpu->SetValue(4);
 
-//    m_panel_scene->SetBackgroundColour( *wxWHITE);
+    //    m_panel_scene->SetBackgroundColour( *wxWHITE);
 
-    region = make_shared<Region>(500,1024,1.0);
-    region->setupRegion(-1,1.9);
+    region = make_shared<Region>(500, 1024, 1.0);
+    region->setupRegion(-1, 1.9);
     draw = new Draw(m_panel_scene, region);
 
-
-    wxBoxSizer* bSizer;
-    bSizer = new wxBoxSizer( wxVERTICAL );
-    bSizer->Add( draw, 1, wxEXPAND, 5 );
-    m_panel_scene->SetSizer( bSizer );
+    wxBoxSizer *bSizer;
+    bSizer = new wxBoxSizer(wxVERTICAL);
+    bSizer->Add(draw, 1, wxEXPAND, 5);
+    m_panel_scene->SetSizer(bSizer);
     m_panel_scene->SetAutoLayout(true);
 
     m_timer = new wxTimer(this);
-    this->Connect( wxEVT_TIMER, wxTimerEventHandler( Draw::animate ), NULL, this );
+    this->Connect(wxEVT_TIMER, wxTimerEventHandler(Draw::animate), NULL, this);
 
     compute = true;
 }
@@ -115,19 +112,21 @@ void wxRTCFD_Code_Frame::OnAbout(wxCommandEvent &event)
 {
     wxString msg = "RTCFD_Code 0.01beta\n\n"
                    "- Built in 19.12.2022 under GPL3 LICENSE\n"
-                   "- Based on "+
-                   wxbuildinfo(long_f)+
+                   "- Based on " +
+                   wxbuildinfo(long_f) +
                    "\n\n"
                    "Author:\nSofiane KHELLADI <sofiane.khelladi@ensam.eu>";
     wxMessageBox(msg, _("Welcome to..."));
 }
 
-
-void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
+void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
 {
     int regionNr = m_propertyGridItem_case->GetValue().GetLong();
 
     wxAny value;
+    
+    value = m_propertyGridItem_obstacle->GetValue();
+    draw->region->obstacle = value.As<OBJ>();
 
     value = m_propertyGridItem_streamlines->GetValue();
     draw->region->showStreamlines = value.As<bool>();
@@ -136,7 +135,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
     draw->region->showVelocityVectors = value.As<bool>();
 
     value = m_propertyGridItem_tracer->GetValue();
-    draw->region->showTracer= value.As<bool>();
+    draw->region->showTracer = value.As<bool>();
 
     value = m_propertyGridItem_overrelaxation->GetValue();
     draw->region->overRelaxation = value.As<double>();
@@ -150,20 +149,17 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
     value = m_propertyGridItem_density->GetValue();
     draw->region->fluid->density = value.As<double>();
 
-    value = m_propertyGridItem_obs_pos->GetValue();
-    draw->region->showObstaclePosition = value.As<bool>();
-
-
+    
     // draw->region->updateRegionSize(draw->height(),draw->width());
 
-    if(compute)
+    if (compute)
     {
 #if wxUSE_STATUSBAR
         statusBar->SetStatusText(_("running..."), 1);
 #endif
 
         m_timer->Start(1);
-        draw->region->setupRegion(regionNr, draw->region->overRelaxation,draw->region->resolution,draw->region->fluid->density,draw->region->fluid->numThreads);
+        draw->region->setupRegion(regionNr, draw->region->overRelaxation, draw->region->resolution, draw->region->fluid->density, draw->region->fluid->numThreads);
 
         m_propertyGridItem_streamlines->SetValue(draw->region->showStreamlines);
         m_propertyGridItem_vel_vec->SetValue(draw->region->showVelocityVectors);
@@ -171,12 +167,12 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
         m_propertyGridItem_obs_pos->SetValue(draw->region->showObstaclePosition);
         m_propertyGridItem_nb_cpu->SetValue(draw->region->fluid->numThreads);
 
-        compute=false;
-        draw->region->paused=false;
+        compute = false;
+        draw->region->paused = false;
         m_button_run->SetLabel("Stop");
         m_checkBox_pause->SetValue(false);
         update();
-        //setToolTip(ui->comboBox->currentText());
+        // setToolTip(ui->comboBox->currentText());
     }
     else
     {
@@ -185,19 +181,19 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent& event)
 #endif
         // timer->stop();
         m_timer->Stop();
-        compute=true;
+        compute = true;
         m_button_run->SetLabel("Run");
         m_checkBox_pause->SetValue(false);
         draw->region->paused = true;
         update();
     }
-//    update();
+    //    update();
 }
 
-void wxRTCFD_Code_Frame::onCheckBoxChecked(wxCommandEvent& event)
+void wxRTCFD_Code_Frame::onCheckBoxChecked(wxCommandEvent &event)
 {
     draw->region->paused = event.IsChecked();
-    if(draw->region->paused)
+    if (draw->region->paused)
     {
 #if wxUSE_STATUSBAR
         statusBar->SetStatusText(_("paused..."), 1);
@@ -211,49 +207,49 @@ void wxRTCFD_Code_Frame::onCheckBoxChecked(wxCommandEvent& event)
     }
 }
 
-void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent& event)
+void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
 {
-    wxPGProperty* property = event.GetProperty();
+    wxPGProperty *property = event.GetProperty();
     // Do nothing if event did not have associated property
-    if ( !property )
+    if (!property)
         return;
     // GetValue() returns wxVariant, but it is converted transparently to
     // wxAny
     wxAny value = property->GetValue();
     // Also, handle the case where property value is unspecified
-    if ( value.IsNull() )
+    if (value.IsNull())
         return;
     // Handle changes in values, as needed
 
-    if(property->GetName() == "Case")
+    if (property->GetName() == "Case")
         OnCasePropertyChanged(value.As<int>());
-    else if(property->GetName() == "Scalar" )
+    else if (property->GetName() == "Scalar")
         OnScalarPropertyChanged(value.As<int>());
-    else if(property->GetName() == "Obstacle position" )
+    else if (property->GetName() == "Obstacle position")
         OnObstaclePositionPropertyChanged(value.As<bool>());
-    else if(property->GetName() == "Tracer" )
+    else if (property->GetName() == "Tracer")
         OnTracerPropertyChanged(value.As<bool>());
-    else if(property->GetName() == "Streamlines" )
+    else if (property->GetName() == "Streamlines")
         OnStreamlinesPropertyChanged(value.As<bool>());
-    else if(property->GetName() == "Velocity vectors" )
+    else if (property->GetName() == "Velocity vectors")
         OnVelocityVectorsPropertyChanged(value.As<bool>());
-    else if(property->GetName() == "Density" )
+    else if (property->GetName() == "Density")
         OnDensityPropertyChanged(value.As<double>());
-    else if(property->GetName() == "Overrelaxation" )
+    else if (property->GetName() == "Overrelaxation")
         OnOverrelaxationPropertyChanged(value.As<double>());
-    else if(property->GetName() == "Resolution" )
+    else if (property->GetName() == "Resolution")
         OnResolutionPropertyChanged(value.As<int>());
-    else if(property->GetName() == "CPU Number" )
+    else if (property->GetName() == "CPU Number")
         OnNumThreadsPropertyChanged(value.As<int>());
-//    wxString strValue = property->GetValueAsString();
+    //    wxString strValue = property->GetValueAsString();
 
-//    wxString msg = property->GetName()+"value = "+strValue;
-//    wxMessageBox(msg, _("property value"));
+    //    wxString msg = property->GetName()+"value = "+strValue;
+    //    wxMessageBox(msg, _("property value"));
 }
 
 void wxRTCFD_Code_Frame::OnCasePropertyChanged(int value)
 {
-    switch(value)
+    switch (value)
     {
     case 0: // Tank
     {
@@ -280,12 +276,32 @@ void wxRTCFD_Code_Frame::OnCasePropertyChanged(int value)
 
 void wxRTCFD_Code_Frame::OnObstaclePropertyChanged(int value)
 {
-
+    switch (value)
+    {
+    case 1:
+        draw->region->obstacle = CYLINDER;
+        break;
+    case 2:
+        draw->region->obstacle = SQUARE;
+        break;
+    case 3:
+        draw->region->obstacle = DIAMOND;
+        break;
+    case 4:
+        draw->region->obstacle = NACA;
+        break;
+    case 5:
+        draw->region->obstacle = ROTOR;
+        break;
+    default:
+        draw->region->obstacle = CYLINDER;
+        break;
+    }
 }
 
 void wxRTCFD_Code_Frame::OnScalarPropertyChanged(int value)
 {
-    switch(value)
+    switch (value)
     {
     case 0: // no selection
     {
@@ -332,7 +348,7 @@ void wxRTCFD_Code_Frame::OnScalarPropertyChanged(int value)
 
 void wxRTCFD_Code_Frame::OnObstaclePositionPropertyChanged(bool value)
 {
-    draw->region->showObstaclePosition= value;
+    draw->region->showObstaclePosition = value;
 }
 
 void wxRTCFD_Code_Frame::OnTracerPropertyChanged(bool value)
@@ -348,7 +364,6 @@ void wxRTCFD_Code_Frame::OnStreamlinesPropertyChanged(bool value)
 void wxRTCFD_Code_Frame::OnVelocityVectorsPropertyChanged(bool value)
 {
     draw->region->showVelocityVectors = value;
-
 }
 
 void wxRTCFD_Code_Frame::OnDensityPropertyChanged(double value)
@@ -369,4 +384,3 @@ void wxRTCFD_Code_Frame::OnNumThreadsPropertyChanged(int value)
 {
     draw->region->fluid->numThreads = value;
 }
-

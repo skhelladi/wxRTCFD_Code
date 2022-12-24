@@ -6,6 +6,8 @@
 #include <math.h>
 #include <algorithm>
 
+#include "settings.h"
+
 #define U_FIELD  0
 #define V_FIELD  1
 #define S_FIELD  2
@@ -29,9 +31,9 @@ public:
     double sampleField(double x, double y, int field);
     double avgU(int i, int j);
     double avgV(int i, int j);
-    void ComputeVelMagnitude();
-    void advectVel(double dt);
-    void advectSmoke(double dt);
+    void computeVelosityMagnitude();
+    void advectVelocity(double dt);
+    void advectTracer(double dt);
     void simulate(double dt, double gravity, int numIters);
 // ----------------- end of simulator ------------------------------
 

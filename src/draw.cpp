@@ -1,78 +1,76 @@
 #include "draw.h"
 
 //
-//wxBEGIN_EVENT_TABLE(Draw, wxPanel)
+// wxBEGIN_EVENT_TABLE(Draw, wxPanel)
 //    EVT_PAINT(Draw::paintEvent)
-//wxEND_EVENT_TABLE()
+// wxEND_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(Draw, wxPanel)
 // some useful events
 
-    EVT_MOTION(Draw::onMouseMoved)
-    EVT_LEFT_DOWN(Draw::onMouseDown)
-    EVT_LEFT_UP(Draw::onMouseReleased)
-    /*  EVT_RIGHT_DOWN(Draw::rightClick)
-     EVT_LEAVE_WINDOW(Draw::mouseLeftWindow)
-     EVT_KEY_DOWN(Draw::keyPressed)
-     EVT_KEY_UP(Draw::keyReleased)
-     EVT_MOUSEWHEEL(Draw::mouseWheelMoved)
-     */
+EVT_MOTION(Draw::onMouseMoved)
+EVT_LEFT_DOWN(Draw::onMouseDown)
+EVT_LEFT_UP(Draw::onMouseReleased)
+/*  EVT_RIGHT_DOWN(Draw::rightClick)
+ EVT_LEAVE_WINDOW(Draw::mouseLeftWindow)
+ EVT_KEY_DOWN(Draw::keyPressed)
+ EVT_KEY_UP(Draw::keyReleased)
+ EVT_MOUSEWHEEL(Draw::mouseWheelMoved)
+ */
 //     EVT_TIMER(Draw::m_timer,Draw::animate)
 
 // catch paint events
-    EVT_PAINT(Draw::paintEvent)
+EVT_PAINT(Draw::paintEvent)
 
 END_EVENT_TABLE()
 
-
-Draw::Draw(wxWindow* parent, shared_ptr<Region> _region)
+Draw::Draw(wxWindow *parent, shared_ptr<Region> _region)
     : wxPanel(parent), region(_region)
 {
-//  m_timer = new wxTimer(this);
-//  m_timer->SetOwner( this, wxID_ANY );
-//  m_timer->Bind(wxEVT_TIMER, &animate, this);
-    loop=0;
+    //  m_timer = new wxTimer(this);
+    //  m_timer->SetOwner( this, wxID_ANY );
+    //  m_timer->Bind(wxEVT_TIMER, &animate, this);
+    loop = 0;
 }
 
-void Draw::animate(wxTimerEvent& event)
+void Draw::animate(wxTimerEvent &event)
 {
-//    elapsed = (elapsed + qobject_cast<QTimer*>(sender())->interval()) % 1000;
-//    cout<<loop++<<endl;
+    //    elapsed = (elapsed + qobject_cast<QTimer*>(sender())->interval()) % 1000;
+    //    cout<<loop++<<endl;
 
     Refresh();
-//    Update();
+    //    Update();
 }
 
-void Draw::paintEvent(wxPaintEvent& event)
+void Draw::paintEvent(wxPaintEvent &event)
 {
     region->update();
     wxPaintDC dc(this);
     paint(dc);
-//    wxPaintDC dc(this);
-//    if(m_Bitmap.IsOk())
-//    {
-//        dc.DrawBitmap(m_Bitmap,0,0);
-//    }
-
+    //    wxPaintDC dc(this);
+    //    if(m_Bitmap.IsOk())
+    //    {
+    //        dc.DrawBitmap(m_Bitmap,0,0);
+    //    }
 }
 
-void Draw::getSize(int* width, int* height)
+void Draw::getSize(int *width, int *height)
 {
     wxPaintDC dc(this);
     dc.GetSize(width, height);
 }
 
-void Draw::paint(wxDC& dc)
+void Draw::paint(wxDC &dc)
 {
     int height, width;
 
     dc.GetSize(&width, &height);
 
-//    cout<<height<<" - "<<width<<endl;
+    //    cout<<height<<" - "<<width<<endl;
 
-//    region->sayhello();
+    //    region->sayhello();
 
-    region->updateRegionSize(height,width);
+    region->updateRegionSize(height, width);
     shared_ptr<Fluid> f = region->fluid;
 
     int n = f->numY;
@@ -81,31 +79,30 @@ void Draw::paint(wxDC& dc)
 
     double h = f->h;
 
-    double minP = *min_element(f->p.begin(),f->p.end());
-    double maxP = *max_element(f->p.begin(),f->p.end());
+    double minP = *min_element(f->p.begin(), f->p.end());
+    double maxP = *max_element(f->p.begin(), f->p.end());
 
-    double minVel = *min_element(f->Vel.begin(),f->Vel.end());
-    double maxVel = *max_element(f->Vel.begin(),f->Vel.end());
+    double minVel = *min_element(f->Vel.begin(), f->Vel.end());
+    double maxVel = *max_element(f->Vel.begin(), f->Vel.end());
 
-    double minXVel = *min_element(f->u.begin(),f->u.end());
-    double maxXVel = *max_element(f->u.begin(),f->u.end());
+    double minXVel = *min_element(f->u.begin(), f->u.end());
+    double maxXVel = *max_element(f->u.begin(), f->u.end());
 
-    double minYVel = *min_element(f->v.begin(),f->v.end());
-    double maxYVel = *max_element(f->v.begin(),f->v.end());
+    double minYVel = *min_element(f->v.begin(), f->v.end());
+    double maxYVel = *max_element(f->v.begin(), f->v.end());
 
     vector<int> color = {255, 255, 255, 255};
 
-    m_pixelData = new unsigned char[3*(width)*(height)];
-//    wxBitmap m_Bitmap(width,height);
-//    wxMemoryDC memDC;
-//    memDC.SelectObject(m_Bitmap);
-//    memDC.SetBackground(*wxWHITE_BRUSH);
-//    memDC.Clear();
-//    memDC.SetPen(*wxRED_PEN);
-//    memDC.SetBrush(*wxTRANSPARENT_BRUSH);
-//    memDC.DrawRectangle(wxRect(10, 10, 200, 200));
-//    memDC.SelectObject(wxNullBitmap);
-
+    m_pixelData = new unsigned char[3 * (width) * (height)];
+    //    wxBitmap m_Bitmap(width,height);
+    //    wxMemoryDC memDC;
+    //    memDC.SelectObject(m_Bitmap);
+    //    memDC.SetBackground(*wxWHITE_BRUSH);
+    //    memDC.Clear();
+    //    memDC.SetPen(*wxRED_PEN);
+    //    memDC.SetBrush(*wxTRANSPARENT_BRUSH);
+    //    memDC.DrawRectangle(wxRect(10, 10, 200, 200));
+    //    memDC.SelectObject(wxNullBitmap);
 
     for (int i = 0; i < f->numX; i++)
     {
@@ -195,34 +192,31 @@ void Draw::paint(wxDC& dc)
             {
                 for (int xi = 0; xi < cx; xi++)
                 {
-                    int Xpos(x+xi);
+                    int Xpos(x + xi);
                     int Ypos(yi);
-                    if(Xpos>=0&&Xpos<width&&Ypos>=0&&Ypos<height)
+                    if (Xpos >= 0 && Xpos < width && Ypos >= 0 && Ypos < height)
                     {
-                        m_pixelData[3*Xpos+3*Ypos*width]=r;
-                        m_pixelData[3*Xpos+3*Ypos*width+1]=g;
-                        m_pixelData[3*Xpos+3*Ypos*width+2]=b;
+                        m_pixelData[3 * Xpos + 3 * Ypos * width] = r;
+                        m_pixelData[3 * Xpos + 3 * Ypos * width + 1] = g;
+                        m_pixelData[3 * Xpos + 3 * Ypos * width + 2] = b;
                     }
-
                 }
-
             }
-
         }
     }
 
-    wxBitmap b(width,height,24);
+    wxBitmap b(width, height, 24);
     wxNativePixelData data(b);
 
     wxNativePixelData::Iterator p(data);
 
     int curPixelDataLoc = 0;
 
-//    #pragma omp parallel for reduction(+:curPixelDataLoc)
-    for ( int x = 0; x < height; ++x )
+    //    #pragma omp parallel for reduction(+:curPixelDataLoc)
+    for (int x = 0; x < height; ++x)
     {
         wxNativePixelData::Iterator rowStart = p;
-        for ( int y = 0; y < width; ++y, ++p )
+        for (int y = 0; y < width; ++y, ++p)
         {
             p.Red() = m_pixelData[curPixelDataLoc++];
             p.Green() = m_pixelData[curPixelDataLoc++];
@@ -232,29 +226,27 @@ void Draw::paint(wxDC& dc)
         p.OffsetY(data, 1);
     }
 
-    m_Bitmap=b;
+    m_Bitmap = b;
 
-    if(m_Bitmap.IsOk())
+    if (m_Bitmap.IsOk())
     {
-        dc.DrawBitmap(m_Bitmap,0,0);
+        dc.DrawBitmap(m_Bitmap, 0, 0);
     }
 
-//      Refresh();
-//    Update();
+    //      Refresh();
+    //    Update();
 
+    //        _painter->drawImage(0, 0, image);
 
-
-//        _painter->drawImage(0, 0, image);
-
-//        cout<<region->showVelocity<<endl;
+    //        cout<<region->showVelocity<<endl;
     if (region->showVelocityVectors)
     {
         double scale = 0.025;
-//            #pragma omp parallel for
+        //            #pragma omp parallel for
 
-        for (int i = 0; i < f->numX; i+=5)
+        for (int i = 0; i < f->numX; i += 5)
         {
-            for (int j = 0; j < f->numY; j+=5)
+            for (int j = 0; j < f->numY; j += 5)
             {
 
                 double u = f->u[i * n + j];
@@ -265,20 +257,18 @@ void Draw::paint(wxDC& dc)
                 double y0 = region->cY(j * h);
                 double y1 = region->cY(j * h + v * scale);
 
-                dc.DrawLine(x0, y0,x1, y1);
-//                    QPainterPath velPath;
-//                    velPath.moveTo(x0, y0);
-//                    velPath.lineTo(x1, y1);
-//                    _painter->drawPath(velPath);
-
+                dc.DrawLine(x0, y0, x1, y1);
+                //                    QPainterPath velPath;
+                //                    velPath.moveTo(x0, y0);
+                //                    velPath.lineTo(x1, y1);
+                //                    _painter->drawPath(velPath);
             }
         }
-
     }
 
     if (region->showStreamlines)
     {
-//        double segLen = f->h * 1.0;
+        //        double segLen = f->h * 1.0;
         int numSegs = 10;
         for (int i = 1; i < f->numX - 1; i += 5)
         {
@@ -288,37 +278,34 @@ void Draw::paint(wxDC& dc)
                 double x = (i + 0.5) * f->h;
                 double y = (j + 0.5) * f->h;
 
-//                    QPainterPath velPath;
-//                    velPath.moveTo(region->cX(x), region->cY(y));
+                //                    QPainterPath velPath;
+                //                    velPath.moveTo(region->cX(x), region->cY(y));
                 wxPoint pt[numSegs];
-                pt[0]=wxPoint(region->cX(x), region->cY(y));
+                pt[0] = wxPoint(region->cX(x), region->cY(y));
                 int n;
                 for (n = 1; n < numSegs; n++)
                 {
                     double u = f->sampleField(x, y, U_FIELD);
                     double v = f->sampleField(x, y, V_FIELD);
-//                        double l = sqrt(u * u + v * v);
-//                         x += u/l * segLen;
-//                         y += v/l * segLen;
+                    //                        double l = sqrt(u * u + v * v);
+                    //                         x += u/l * segLen;
+                    //                         y += v/l * segLen;
                     x += u * 0.01;
                     y += v * 0.01;
 
-//                    if (x > f->numX * f->h)
-//                    {
-//                        numSegs;
-//                        break;
-//                    }
+                    //                    if (x > f->numX * f->h)
+                    //                    {
+                    //                        numSegs;
+                    //                        break;
+                    //                    }
 
-
-                    pt[n]=wxPoint(region->cX(x), region->cY(y));
-//                        velPath.lineTo(region->cX(x), region->cY(y));
+                    pt[n] = wxPoint(region->cX(x), region->cY(y));
+                    //                        velPath.lineTo(region->cX(x), region->cY(y));
                 }
 
-                dc.DrawLines(numSegs,pt);
+                dc.DrawLines(numSegs, pt);
 
-//                    _painter->drawPath(velPath);
-
-
+                //                    _painter->drawPath(velPath);
             }
         }
     }
@@ -326,72 +313,90 @@ void Draw::paint(wxDC& dc)
     if (region->showObstacle)
     {
         //! c.strokeW;
-        double r = region->obstacleRadius + f->h;
+        double r = region->characteristic_length + 0.5 * f->h;
 
-        dc.DrawCircle(region->cX(region->obstacleX), region->cY(region->obstacleY), region->cScale * r);
-
+        if (region->obstacle == CYLINDER)
+            dc.DrawCircle(region->cX(region->obstacleX), region->cY(region->obstacleY), region->cScale * r);
+        else if (region->obstacle == SQUARE)
+        {
+            vector<wxPoint> ppt = getSquarePoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
+            wxPoint *pt = fromVectorToPtr(ppt);
+            dc.DrawPolygon(4, pt);
+            // dc.DrawRectangle(region->cX(region->obstacleX - r), region->cY(region->obstacleY + r), 2.0 * region->cScale * r, 2.0 * region->cScale * r);
+        }
+        else if (region->obstacle == DIAMOND)
+        {
+            vector<wxPoint> ppt = getDiamondPoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
+            wxPoint *pt = fromVectorToPtr(ppt);
+            dc.DrawPolygon(4, pt);
+        }
+        else if (region->obstacle == NACA)
+        {
+            vector<wxPoint> ppt = getNacaPoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
+            wxPoint *pt = fromVectorToPtr(ppt);
+            dc.DrawPolygon(ppt.size(), pt);
+        }
     }
 
     if (region->showPressure)
     {
         wxString s = "pressure: " + to_string(minP) + " - " + to_string(maxP) + " Pa";
-        dc.DrawText(s, region->width/2,25);
+        dc.DrawText(s, region->width / 2, 25);
     }
 
     if (region->showVelocity)
     {
         wxString s = "velocity: " + to_string(minVel) + " - " + to_string(maxVel) + " m/s";
-        dc.DrawText(s, region->width/2,25);
+        dc.DrawText(s, region->width / 2, 25);
     }
 
     if (region->showXVelocity)
     {
         wxString s = "x-velocity: " + to_string(minXVel) + " - " + to_string(maxXVel) + " m/s";
-        dc.DrawText(s, region->width/2,25);
+        dc.DrawText(s, region->width / 2, 25);
     }
 
     if (region->showYVelocity)
     {
         wxString s = "y-velocity: " + to_string(minYVel) + " - " + to_string(maxYVel) + " m/s";
-        dc.DrawText(s, region->width/2,25);
+        dc.DrawText(s, region->width / 2, 25);
     }
 
-    if(region->showObstaclePosition)
+    if (region->showObstaclePosition)
     {
         wxString s = "Obstacle position: (" + to_string(region->obstacleX) + " , " + to_string(region->obstacleY) + ")";
-        dc.DrawText(s, region->width/2,region->height-25);
+        dc.DrawText(s, region->width / 2, region->height - 25);
     }
-
 }
 
 //
 //
 //// some useful events
 ///*
-void Draw::onMouseMoved(wxMouseEvent& event)
+void Draw::onMouseMoved(wxMouseEvent &event)
 {
-    wxCoord sx,sy;
-    event.GetPosition(&sx,&sy);
+    wxCoord sx, sy;
+    event.GetPosition(&sx, &sy);
 
-    int mx = sx;// - bounds.left - region->canvas.clientLeft;
-    int my = sy;// - bounds.top - region->clientTop;
+    int mx = sx; // - bounds.left - region->canvas.clientLeft;
+    int my = sy; // - bounds.top - region->clientTop;
 
     double x = mx / region->cScale;
     double y = (region->height - my) / region->cScale;
 
-    if(mouseDown) region->setObstacle(x, y, false);
+    if (mouseDown)
+        region->setObstacle(x, y, false);
 
     Refresh();
-
 }
-void Draw::onMouseDown(wxMouseEvent& event)
+void Draw::onMouseDown(wxMouseEvent &event)
 {
-    wxCoord sx,sy;
-    event.GetPosition(&sx,&sy);
-//
-//    cout<<"("<<x<<","<<y<<")"<<endl;
-    int mx = sx;// - bounds.left - region->canvas.clientLeft;
-    int my = sy;// - bounds.top - region->clientTop;
+    wxCoord sx, sy;
+    event.GetPosition(&sx, &sy);
+    //
+    //    cout<<"("<<x<<","<<y<<")"<<endl;
+    int mx = sx; // - bounds.left - region->canvas.clientLeft;
+    int my = sy; // - bounds.top - region->clientTop;
 
     double x = mx / region->cScale;
     double y = (region->height - my) / region->cScale;
@@ -401,10 +406,9 @@ void Draw::onMouseDown(wxMouseEvent& event)
     mouseDown = true;
 
     Refresh();
-
 }
 
-void Draw::onMouseReleased(wxMouseEvent& event)
+void Draw::onMouseReleased(wxMouseEvent &event)
 {
     mouseDown = false;
 }
@@ -421,11 +425,11 @@ vector<int> getSciColor(double val, double minVal, double maxVal)
 {
     val = fmin(fmax(val, minVal), maxVal - 0.0001);
     double d = maxVal - minVal;
-    val = (d == 0.0)? 0.5 : (val - minVal) / d;
+    val = (d == 0.0) ? 0.5 : (val - minVal) / d;
     double m = 0.25;
     int num = floor(val / m);
     double s = (val - num * m) / m;
-    double  r=0, g=0, b=0;
+    double r = 0, g = 0, b = 0;
 
     switch (num)
     {
@@ -453,4 +457,3 @@ vector<int> getSciColor(double val, double minVal, double maxVal)
 
     return {int(255 * r), int(255 * g), int(255 * b), 255};
 }
-

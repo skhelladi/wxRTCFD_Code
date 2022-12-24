@@ -162,7 +162,7 @@ double Fluid::avgV(int i, int j)
             v[(i - 1) * n + j + 1] + v[i * n + j + 1]) * 0.25;
 }
 
-void Fluid::ComputeVelMagnitude()
+void Fluid::computeVelosityMagnitude()
 {
     int n = numY;
     #pragma omp parallel for schedule(static) num_threads(numThreads)
@@ -175,7 +175,7 @@ void Fluid::ComputeVelMagnitude()
     }
 }
 
-void Fluid::advectVel(double dt)
+void Fluid::advectVelocity(double dt)
 {
     newU = u;
     newV = v;
@@ -226,7 +226,7 @@ void Fluid::advectVel(double dt)
     v=newV;
 }
 
-void Fluid::advectSmoke(double dt)
+void Fluid::advectTracer(double dt)
 {
     newM=m;
 
@@ -258,9 +258,9 @@ void Fluid::simulate(double dt, double gravity, int numIters)
     fill(p.begin(),p.end(),0.0);
     solveIncompressibility(numIters, dt);
     extrapolate();
-    advectVel(dt);
-    advectSmoke(dt);
-    ComputeVelMagnitude();
+    advectVelocity(dt);
+    advectTracer(dt);
+    computeVelosityMagnitude();
 }
 
 void Fluid::updateFluidParameters()
