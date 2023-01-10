@@ -3,6 +3,8 @@
 #include <iostream>
 #include "fluid.h"
 
+#define DEBUG 0
+
 enum OBJ {CYLINDER, SQUARE, DIAMOND, NACA, ROTOR};
 
 // #define CALL_SET_OBSTACLE(object,ptrToMember)  (object.*ptrToMember)
@@ -76,5 +78,6 @@ public:
     OBJ obstacle;
 };
 
+OBJ indexToOBJ(int index);
 
 #endif // Region_H

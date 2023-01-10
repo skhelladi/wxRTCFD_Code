@@ -71,12 +71,12 @@ vector<Point> getDiamondPoints(Point pos, double length)
 
 vector<wxPoint> getNacaPoints(wxPoint pos, double length)
 {
-    return generateNacaProfile(pos, 4.0 * length, 0.15, 10, M_PI / 12);
+    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, M_PI / 12);
 }
 
 vector<Point> getNacaPoints(Point pos, double length)
 {
-    return generateNacaProfile(pos, 4.0 * length, 0.15, 10, -M_PI / 12);
+    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, -M_PI / 12);
 }
 
 wxPoint *fromVectorToPtr(vector<wxPoint> pt)
@@ -105,8 +105,7 @@ bool isInsidePolygon(vector<Point> polygon, Point P)
             }
         }
     }
-
-    return count % 2 == 1;
+    return count & 1; //count % 2 == 1;
 }
 
 vector<Point> generateNacaProfile(Point pos, double chord, double thickness, int nb_points, double incidence)

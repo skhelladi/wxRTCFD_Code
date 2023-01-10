@@ -425,3 +425,17 @@ void Region::update()
         fluid->simulate(dt, gravity, numIters);
     }
 }
+
+OBJ indexToOBJ(int index)
+{
+    switch (index)
+    {
+    case 1 : return CYLINDER;
+    case 2 : return SQUARE;
+    case 3 : return DIAMOND;
+    case 4 : return NACA;
+    case 5 : return ROTOR;
+    default: return CYLINDER;
+    }
+    
+}

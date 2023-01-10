@@ -126,7 +126,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
     wxAny value;
     
     value = m_propertyGridItem_obstacle->GetValue();
-    draw->region->obstacle = value.As<OBJ>();
+    draw->region->obstacle = indexToOBJ(value.As<int>());
 
     value = m_propertyGridItem_streamlines->GetValue();
     draw->region->showStreamlines = value.As<bool>();
@@ -151,6 +151,8 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
 
     
     // draw->region->updateRegionSize(draw->height(),draw->width());
+
+    cout<<"FALG"<<endl;
 
     if (compute)
     {
