@@ -430,11 +430,11 @@ OBJ indexToOBJ(int index)
 {
     switch (index)
     {
-    case 1 : return CYLINDER;
-    case 2 : return SQUARE;
-    case 3 : return DIAMOND;
-    case 4 : return NACA;
-    case 5 : return ROTOR;
+    case 0 : return CYLINDER;
+    case 1 : return SQUARE;
+    case 2 : return DIAMOND;
+    case 3 : return NACA;
+    case 4 : return ROTOR;
     default: return CYLINDER;
     }
     
