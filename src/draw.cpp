@@ -169,7 +169,7 @@ void Draw::paint(wxDC &dc)
                 {
                     color[0] = 255 * s;
                     color[1] = 255 * s;
-                    color[2] = 255 * s;
+                    color[2] = 255 ;//*s
                 }
             }
             else if (f->s[i * n + j] == 0.0)
