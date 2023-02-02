@@ -200,7 +200,20 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
     //    double cd = sqrt(2) * f->h;
+
+    this->nobscell = 0;
+
 #pragma omp parallel for schedule(static) num_threads(fluid->numThreads)
+
+    for (int i = 1; i < f->numX - 2; i++)
+    {
+        for (int j = 1; j < f->numY - 2; j++)
+        {
+	    if (f->s[i * n + j] == 1.0) this->nobscell++;
+	}
+    }
+    cout<<" nobscell =  " << this->nobscell << endl;
+
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
@@ -210,6 +223,12 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
 
             double dx = (i + 0.5) * f->h - x;
             double dy = (j + 0.5) * f->h - y;
+
+	    //if (abs(dx)<1e-6) cout<<"i & j "<< i << " " << j << " / dx & dy: "<< dx << " " << dy <<endl;
+	    //if (abs(dy)<1e-6) cout<<"i & j "<< i << " " << j << " / dx & dy: "<< dx << " " << dy <<endl;
+	    //if (sqrt(dx*dx + dy*dy)<1e-6) cout<< "Verif: " << sqrt(dx*dx + dy*dy) << endl;
+	    f->nx[i * n + j] = dx / sqrt(dx*dx + dy*dy);
+	    f->ny[i * n + j] = dy / sqrt(dx*dx + dy*dy);
 
             if (dx * dx + dy * dy < r * r)
             {
@@ -398,6 +417,61 @@ void Region::setObstacleRotor(double x, double y, bool reset)
 {
 }
 
+
+void Region::moveObstacle(double dt, bool reset)
+{
+    computeAcceleration();
+    double xnew = this->obstacleX + this->vx * dt + 0.5 * this->ax * pow(dt,2.0);
+    double ynew = this->obstacleY + this->vy * dt + 0.5 * this->ay * pow(dt,2.0);
+    cout<<" verif :" << ay << " " << vy << " " << ynew << endl;
+    setObstacle(xnew, ynew, reset);
+    cout<<" New Position "<< xnew << " " << ynew <<endl;
+    this->vx = (xnew - this->obstacleX) / dt;
+    this->vy = (ynew - this->obstacleY) / dt;
+}
+
+
+void Region::computeAcceleration()
+{
+    // PFD : m_obs * a_obs = m_obs * gravity + int_sobs P dS
+    // a_x = (1/m) * sum P nx
+    // a_y = -g + (1/m) * sum P ny
+
+    shared_ptr<Fluid> f = this->fluid;
+    int n = f->numY;
+
+    double crossA = 2.0*acos(-1.0)*this->characteristic_length*1.0;
+
+    if (this->nobscell != 0)
+    {
+
+    	double dS = crossA/this->nobscell;
+    	double Fx = 0.0;
+    	double Fy = 0.0;
+
+    	for (int i = 1; i < f->numX - 2; i++)
+    	{
+    	    for (int j = 1; j < f->numY - 2; j++)
+    	    {
+    	        Fx -= f->s[i * n + j] * f->p[i * n + j] * f->nx[i * n + j] * dS;
+    	        Fy -= f->s[i * n + j] * f->p[i * n + j] * f->ny[i * n + j] * dS;
+    	    }
+    	}
+
+    	//Fx = 0.0;
+    	//Fy = 0.0;
+
+    	this->ax = (1.0/this->mass) * Fx;
+    	this->ay = this->gravityOBS + (1.0/this->mass) * Fy;
+    }
+    else
+    {
+	this->ax = 0.0;
+	this->ay = 0.0;
+    }
+}
+
+
 void Region::updateRegionSize(int _height, int _width)
 {
 
@@ -423,5 +497,20 @@ void Region::update()
     if (!paused)
     {
         fluid->simulate(dt, gravity, numIters);
+	moveObstacle(this->dt, false);
     }
+}
+
+OBJ indexToOBJ(int index)
+{
+    switch (index)
+    {
+    case 0 : return CYLINDER;
+    case 1 : return SQUARE;
+    case 2 : return DIAMOND;
+    case 3 : return NACA;
+    case 4 : return ROTOR;
+    default: return CYLINDER;
+    }
+
 }

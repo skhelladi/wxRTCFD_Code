@@ -3,6 +3,8 @@
 #include <iostream>
 #include "fluid.h"
 
+#define DEBUG 0
+
 enum OBJ {CYLINDER, SQUARE, DIAMOND, NACA, ROTOR};
 
 // #define CALL_SET_OBSTACLE(object,ptrToMember)  (object.*ptrToMember)
@@ -38,8 +40,11 @@ public:
     void setObstacleDiamond(double x, double y, bool reset);
     void setObstacleNaca(double x, double y, bool reset);
     void setObstacleRotor(double x, double y, bool reset);
+    void moveObstacle(double dt, bool reset);
     void updateRegionSize(int _height, int _width);
     void update();
+
+    void computeAcceleration();
 
     void sayhello(){cout<<"hello! "<<text<<endl;}
 
@@ -51,6 +56,13 @@ public:
     double overRelaxation= 1.9;
     double obstacleX= 0.0;
     double obstacleY= 0.0;
+    double vx = 0.0;
+    double vy = 0.0;
+    double ax = 0.0;
+    double ay = 0.0;
+    int nobscell;
+    double mass = 100.0;
+    double gravityOBS = 0.0;//-9.81;
     double characteristic_length= 0.15;
     bool paused= false;
     int RegionNr= 0;
@@ -76,5 +88,6 @@ public:
     OBJ obstacle;
 };
 
+OBJ indexToOBJ(int index);
 
 #endif // Region_H

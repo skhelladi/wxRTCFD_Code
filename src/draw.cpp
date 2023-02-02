@@ -11,8 +11,8 @@ BEGIN_EVENT_TABLE(Draw, wxPanel)
 EVT_MOTION(Draw::onMouseMoved)
 EVT_LEFT_DOWN(Draw::onMouseDown)
 EVT_LEFT_UP(Draw::onMouseReleased)
-/*  EVT_RIGHT_DOWN(Draw::rightClick)
- EVT_LEAVE_WINDOW(Draw::mouseLeftWindow)
+EVT_RIGHT_DOWN(Draw::rightClick)
+/* EVT_LEAVE_WINDOW(Draw::mouseLeftWindow)
  EVT_KEY_DOWN(Draw::keyPressed)
  EVT_KEY_UP(Draw::keyReleased)
  EVT_MOUSEWHEEL(Draw::mouseWheelMoved)
@@ -169,7 +169,7 @@ void Draw::paint(wxDC &dc)
                 {
                     color[0] = 255 * s;
                     color[1] = 255 * s;
-                    color[2] = 255 * s;
+                    color[2] = 255 ;//* s
                 }
             }
             else if (f->s[i * n + j] == 0.0)
@@ -411,15 +411,24 @@ void Draw::onMouseDown(wxMouseEvent &event)
 void Draw::onMouseReleased(wxMouseEvent &event)
 {
     mouseDown = false;
+
+    Refresh();
 }
 
 // void Draw::mouseWheelMoved(wxMouseEvent& event) {}
-//
-// void Draw::rightClick(wxMouseEvent& event) {}
+
+void Draw::rightClick(wxMouseEvent& event)
+{
+    double dt = this->region->dt;
+    region->moveObstacle(dt, false);
+
+    Refresh();
+}
+
+
 // void Draw::mouseLeftWindow(wxMouseEvent& event) {}
 // void Draw::keyPressed(wxKeyEvent& event) {}
 // void Draw::keyReleased(wxKeyEvent& event) {}
-// */
 
 vector<int> getSciColor(double val, double minVal, double maxVal)
 {

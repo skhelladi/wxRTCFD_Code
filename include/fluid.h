@@ -58,6 +58,9 @@ public:
     vector<double> s;
     vector<double> m;
     vector<double> newM;
+
+    vector<double> nx;
+    vector<double> ny;
 };
 
 #endif // FLUID_H
