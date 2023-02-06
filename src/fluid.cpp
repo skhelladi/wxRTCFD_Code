@@ -22,6 +22,7 @@ Fluid::Fluid(double _density, int _numX, int _numY, double _h, double _overRelax
     numThreads = _numThreads;
     nx.resize(numCells);
     ny.resize(numCells);
+    ib.resize(numCells);
 }
 
 void Fluid::integrate(double dt, double gravity)
@@ -277,4 +278,8 @@ void Fluid::updateFluidParameters()
     m.resize(numCells,1.0);
     newM.resize(numCells);
     num = numX * numY;
+    nx.resize(numCells);
+    ny.resize(numCells);
+    ib.resize(numCells);
+
 }

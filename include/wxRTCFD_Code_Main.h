@@ -46,6 +46,7 @@ private:
     void OnTracerPropertyChanged(bool value);
     void OnStreamlinesPropertyChanged(bool value);
     void OnVelocityVectorsPropertyChanged(bool value);
+    void OnCdPropertyChanged(bool value);
     void OnDensityPropertyChanged(double value);
     void OnOverrelaxationPropertyChanged(double value);
     void OnResolutionPropertyChanged(int value);

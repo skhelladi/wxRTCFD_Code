@@ -5,6 +5,7 @@ wxArrayString getCaseList()
     wxArrayString arrCase;
     arrCase.Add("Tank");
     arrCase.Add("Wind tunnel");
+    arrCase.Add("Wind tunnel FSI");
     arrCase.Add("Paint");
     arrCase.Add("Wind tunnel (high resolution)");
 

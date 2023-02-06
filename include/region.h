@@ -1,6 +1,7 @@
 #ifndef REGION_H
 #define REGION_H
 #include <iostream>
+#include <fstream>
 #include "fluid.h"
 
 #define DEBUG 0
@@ -44,11 +45,14 @@ public:
     void updateRegionSize(int _height, int _width);
     void update();
 
-    void computeAcceleration();
+    void computeForce();
+    void writeCdinFile();
+    std::ofstream Cdfile;
 
     void sayhello(){cout<<"hello! "<<text<<endl;}
 
     string text="";
+    double inVel = 2.0;
     double gravity = -9.81;
     double dt =  1.0 / 60.0;
     int numIters= 40;
@@ -60,9 +64,12 @@ public:
     double vy = 0.0;
     double ax = 0.0;
     double ay = 0.0;
-    int nobscell;
-    double mass = 100.0;
+    double Fx = 0.0;
+    double Fy = 0.0;
+    int nib;
+    double mass = 50.0;
     double gravityOBS = 0.0;//-9.81;
+    bool FSI = false;
     double characteristic_length= 0.15;
     bool paused= false;
     int RegionNr= 0;
@@ -75,6 +82,7 @@ public:
     bool showVelocityVectors= false;
     bool showPressure= false;
     bool showTracer= true;
+    bool writeCd= false;
     shared_ptr<Fluid> fluid;
 
     int height;

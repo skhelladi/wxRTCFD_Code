@@ -59,6 +59,7 @@ public:
     vector<double> m;
     vector<double> newM;
 
+    vector<double> ib;
     vector<double> nx;
     vector<double> ny;
 };

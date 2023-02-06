@@ -39,8 +39,13 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
 
     if (RegionNr == 0)
         res = this->resolution;
-    else if (RegionNr == 3)
+    else if (RegionNr == 4)
         res = 2 * this->resolution;
+
+    if (RegionNr == 2)
+	this->FSI = true;
+    else
+	this->FSI = false;
 
     double domainHeight = 1.0;
     double domainWidth = domainHeight / simHeight * simWidth;
@@ -87,10 +92,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showObstacle = true;
         this->showObstaclePosition = false;
     }
-    else if (RegionNr == 1 || RegionNr == 3)
+    else if (RegionNr == 1 || RegionNr == 2 || RegionNr == 4)
     { // vortex shedding
 
-        double inVel = 2.0;
 #pragma omp parallel for schedule(static) num_threads(numThreads)
         for (int i = 0; i < f->numX; i++)
         {
@@ -104,7 +108,7 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
 
                 if (i == 1)
                 {
-                    f->u[i * n + j] = inVel;
+                    f->u[i * n + j] = this->inVel;
                 }
             }
         }
@@ -127,14 +131,16 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showYVelocity = false;
         this->showVelocityVectors = false;
 
-        if (RegionNr == 3)
+	if (RegionNr == 2) this->showPressure = true;
+
+        if (RegionNr == 4)
         {
             this->dt = 1.0 / 60.0; // 1/120
             this->numIters = 40;   // 100
             this->showPressure = true;
         }
     }
-    else if (RegionNr == 2)
+    else if (RegionNr == 3)
     { // paint
         this->gravity = 0.0;
         this->overRelaxation = 1.0;
@@ -201,18 +207,7 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
     int n = f->numY;
     //    double cd = sqrt(2) * f->h;
 
-    this->nobscell = 0;
-
 #pragma omp parallel for schedule(static) num_threads(fluid->numThreads)
-
-    for (int i = 1; i < f->numX - 2; i++)
-    {
-        for (int j = 1; j < f->numY - 2; j++)
-        {
-	    if (f->s[i * n + j] == 1.0) this->nobscell++;
-	}
-    }
-    cout<<" nobscell =  " << this->nobscell << endl;
 
     for (int i = 1; i < f->numX - 2; i++)
     {
@@ -233,7 +228,7 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
             if (dx * dx + dy * dy < r * r)
             {
                 f->s[i * n + j] = 0.0;
-                if (this->RegionNr == 2)
+                if (this->RegionNr == 3)
                     f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
                 else
                     f->m[i * n + j] = 1.0;
@@ -245,6 +240,25 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
             }
         }
     }
+
+    this->nib = 0;
+    for (int i = 1; i < f->numX - 2; i++)
+    {
+        for (int j = 1; j < f->numY - 2; j++)
+        {
+            if (f->s[i * n + j] == 1.0)
+            {
+                f->ib[i * n + j] = 0.0;
+                if (f->s[(i-1) * n + j] == 0.0 || f->s[(i+1) * n + j] == 0.0 || f->s[i * n + (j-1)] == 0.0 || f->s[i * n + (j+1)] == 0.0)
+                {
+                    f->ib[i * n + j] = 1.0;
+                    this->nib++;
+                }
+            }
+
+        }
+    }
+    //cout<<" nib  " << nib << endl;
 
     this->showObstacle = true;
     //    this->showObstaclePosition=true;
@@ -285,7 +299,7 @@ void Region::setObstacleSquare(double x, double y, bool reset)
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
                 f->s[i * n + j] = 0.0;
-                if (this->RegionNr == 2)
+                if (this->RegionNr == 3)
                     f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
                 else
                     f->m[i * n + j] = 1.0;
@@ -341,7 +355,7 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
                 f->s[i * n + j] = 0.0;
-                if (this->RegionNr == 2)
+                if (this->RegionNr == 3)
                     f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
                 else
                     f->m[i * n + j] = 1.0;
@@ -397,7 +411,7 @@ void Region::setObstacleNaca(double x, double y, bool reset)
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
                 f->s[i * n + j] = 0.0;
-                if (this->RegionNr == 2)
+                if (this->RegionNr == 3)
                     f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
                 else
                     f->m[i * n + j] = 1.0;
@@ -418,20 +432,57 @@ void Region::setObstacleRotor(double x, double y, bool reset)
 }
 
 
+void Region::writeCdinFile()
+{
+    computeForce();
+
+    double Cd;
+    double Cl;
+    double crossArea = 2.0*this->characteristic_length;
+
+    if (RegionNr == 1 || RegionNr == 2 || RegionNr == 4)
+    {
+    	Cd = 2*this->Fx / (this->fluid->density*pow(this->inVel,2.0)*crossArea);
+    	Cl = 2*this->Fy / (this->fluid->density*pow(this->inVel,2.0)*crossArea);
+    }
+    else
+    {
+	Cd = 0.0;
+	Cl = 0.0;
+    }
+
+    Cdfile.open("Drag_and_Lift.txt", fstream::app);
+    //Cdfile << time.GetInterval()  << " " << Cd << " " << Cl << " \n";
+    Cdfile << Cd << " " << Cl << " \n";
+    Cdfile.close();
+}
+
+
 void Region::moveObstacle(double dt, bool reset)
 {
-    computeAcceleration();
+    computeForce();
+    if (this->nib != 0)
+    {
+	this->ax = (1.0/this->mass) * this->Fx;
+        this->ay = this->gravityOBS + (1.0/this->mass) * this->Fy;
+    }
+    else
+    {
+        this->ax = 0.0;
+        this->ay = 0.0;
+    }
+
     double xnew = this->obstacleX + this->vx * dt + 0.5 * this->ax * pow(dt,2.0);
     double ynew = this->obstacleY + this->vy * dt + 0.5 * this->ay * pow(dt,2.0);
-    cout<<" verif :" << ay << " " << vy << " " << ynew << endl;
+    //cout<<" verif :" << ay << " " << vy << " " << ynew << endl;
     setObstacle(xnew, ynew, reset);
-    cout<<" New Position "<< xnew << " " << ynew <<endl;
+    //cout<<" New Position "<< xnew << " " << ynew <<endl;
     this->vx = (xnew - this->obstacleX) / dt;
     this->vy = (ynew - this->obstacleY) / dt;
 }
 
 
-void Region::computeAcceleration()
+void Region::computeForce()
 {
     // PFD : m_obs * a_obs = m_obs * gravity + int_sobs P dS
     // a_x = (1/m) * sum P nx
@@ -440,35 +491,25 @@ void Region::computeAcceleration()
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
 
-    double crossA = 2.0*acos(-1.0)*this->characteristic_length*1.0;
+    double area = 2.0*acos(-1.0)*this->characteristic_length*1.0;
 
-    if (this->nobscell != 0)
+    double dS = area/this->nib;
+    double _Fx = 0.0;
+    double _Fy = 0.0;
+
+    for (int i = 1; i < f->numX - 2; i++)
     {
-
-    	double dS = crossA/this->nobscell;
-    	double Fx = 0.0;
-    	double Fy = 0.0;
-
-    	for (int i = 1; i < f->numX - 2; i++)
+    	for (int j = 1; j < f->numY - 2; j++)
     	{
-    	    for (int j = 1; j < f->numY - 2; j++)
-    	    {
-    	        Fx -= f->s[i * n + j] * f->p[i * n + j] * f->nx[i * n + j] * dS;
-    	        Fy -= f->s[i * n + j] * f->p[i * n + j] * f->ny[i * n + j] * dS;
-    	    }
-    	}
-
-    	//Fx = 0.0;
-    	//Fy = 0.0;
-
-    	this->ax = (1.0/this->mass) * Fx;
-    	this->ay = this->gravityOBS + (1.0/this->mass) * Fy;
+    	    _Fx -= f->ib[i * n + j] * f->p[i * n + j] * f->nx[i * n + j] * dS;
+    	    _Fy -= f->ib[i * n + j] * f->p[i * n + j] * f->ny[i * n + j] * dS;
+	}
     }
-    else
-    {
-	this->ax = 0.0;
-	this->ay = 0.0;
-    }
+
+    this->Fx = _Fx;
+    this->Fy = _Fy;
+
+    //cout<<"Force: "<< _Fx << " " << _Fy <<endl;
 }
 
 
@@ -497,7 +538,8 @@ void Region::update()
     if (!paused)
     {
         fluid->simulate(dt, gravity, numIters);
-	moveObstacle(this->dt, false);
+	if (this->FSI) moveObstacle(this->dt, false);
+	if (this->writeCd) writeCdinFile();
     }
 }
 

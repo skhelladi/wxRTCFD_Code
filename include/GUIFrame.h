@@ -63,6 +63,7 @@ class GUIFrame : public wxFrame
 		wxPGProperty* m_propertyGridItem_tracer;
 		wxPGProperty* m_propertyGridItem_streamlines;
 		wxPGProperty* m_propertyGridItem_vel_vec;
+		wxPGProperty* m_propertyGridItem_cd;
 		wxPGProperty* m_propertyGridItem_fluid;
 		wxPGProperty* m_propertyGridItem_density;
 		wxPGProperty* m_propertyGridItem_solver;

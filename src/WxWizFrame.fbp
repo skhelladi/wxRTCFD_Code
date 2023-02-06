@@ -540,6 +540,13 @@
                                                     <property name="name">m_propertyGridItem_vel_vec</property>
                                                     <property name="permission">protected</property>
                                                     <property name="type">Bool</property>
+					    	</object>
+						<object class="propGridItem" expanded="0">
+                                                    <property name="help">Dislpay Cd</property>
+                                                    <property name="label">Drag Coefficient</property>
+                                                    <property name="name">m_propertyGridItem_cd</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Bool</property>
                                                 </object>
                                                 <object class="propGridItem" expanded="0">
                                                     <property name="help"></property>

@@ -85,6 +85,8 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_streamlines, wxT("Show streamlines") );
 	m_propertyGridItem_vel_vec = m_propertyGridPage->Append( new wxBoolProperty( wxT("Velocity vectors"), wxT("Velocity vectors") ) );
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_vel_vec, wxT("Show velocity vectors") );
+	m_propertyGridItem_cd = m_propertyGridPage->Append( new wxBoolProperty( wxT("Cd"), wxT("Cd") ) );
+        m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_cd, wxT("Write time evolution of drag & lift coefficients in file") );
 	m_propertyGridItem_fluid = m_propertyGridPage->Append( new wxPropertyCategory( wxT("Fluid"), wxT("Fluid") ) );
 	m_propertyGridItem_density = m_propertyGridPage->Append( new wxFloatProperty( wxT("Density"), wxT("Density") ) );
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_density, wxT("Fluid density in kg/m³") );

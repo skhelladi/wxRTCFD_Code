@@ -58,6 +58,7 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
 
     m_propertyGridItem_case->SetValue("Wind tunnel");
     m_propertyGridItem_tracer->SetValue(true);
+    m_propertyGridItem_cd->SetValue(false);
     m_propertyGridItem_density->SetValue(1000.0);
     m_propertyGridItem_overrelaxation->SetValue(1.9);
     m_propertyGridItem_resolution->SetValue(50);
@@ -137,6 +138,9 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
     value = m_propertyGridItem_tracer->GetValue();
     draw->region->showTracer = value.As<bool>();
 
+    value = m_propertyGridItem_cd->GetValue();
+    draw->region->writeCd = value.As<bool>();
+
     value = m_propertyGridItem_overrelaxation->GetValue();
     draw->region->overRelaxation = value.As<double>();
 
@@ -167,7 +171,13 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
         m_propertyGridItem_vel_vec->SetValue(draw->region->showVelocityVectors);
         m_propertyGridItem_tracer->SetValue(draw->region->showTracer);
         m_propertyGridItem_obs_pos->SetValue(draw->region->showObstaclePosition);
+	m_propertyGridItem_cd->SetValue(draw->region->writeCd);
         m_propertyGridItem_nb_cpu->SetValue(draw->region->fluid->numThreads);
+
+	if(draw->region->writeCd)
+	{
+            draw->region->Cdfile.open("Drag_and_Lift.txt", ios::out);
+	}
 
         compute = false;
         draw->region->paused = false;
@@ -235,6 +245,8 @@ void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
         OnStreamlinesPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Velocity vectors")
         OnVelocityVectorsPropertyChanged(value.As<bool>());
+    else if (property->GetName() == "Cd")
+        OnCdPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Density")
         OnDensityPropertyChanged(value.As<double>());
     else if (property->GetName() == "Overrelaxation")
@@ -263,12 +275,17 @@ void wxRTCFD_Code_Frame::OnCasePropertyChanged(int value)
         m_propertyGridItem_scalar->SetValue("None");
         break;
     }
-    case 2: // Paint
+    case 2: // Wind tunnel FSI
+    {
+        m_propertyGridItem_scalar->SetValue("Pressure");
+        break;
+    }
+    case 3: // Paint
     {
         m_propertyGridItem_scalar->SetValue("None");
         break;
     }
-    case 3: // Wind tunnel (high resolution)
+    case 4: // Wind tunnel (high resolution)
     {
         m_propertyGridItem_scalar->SetValue("Pressure");
         break;
@@ -366,6 +383,11 @@ void wxRTCFD_Code_Frame::OnStreamlinesPropertyChanged(bool value)
 void wxRTCFD_Code_Frame::OnVelocityVectorsPropertyChanged(bool value)
 {
     draw->region->showVelocityVectors = value;
+}
+
+void wxRTCFD_Code_Frame::OnCdPropertyChanged(bool value)
+{
+    draw->region->writeCd = value;
 }
 
 void wxRTCFD_Code_Frame::OnDensityPropertyChanged(double value)
