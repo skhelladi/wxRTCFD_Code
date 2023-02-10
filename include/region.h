@@ -45,6 +45,12 @@ public:
     void updateRegionSize(int _height, int _width);
     void update();
 
+    void obstacleGeometricalFeatures();
+
+    double computeDistToObstacle(vector<Point> Pfsi, Point P);
+    void computePhi();
+    void computeNormals();
+    void getIbCells();
     void computeForce();
     void writeCdinFile();
     std::ofstream Cdfile;
@@ -67,7 +73,9 @@ public:
     double Fx = 0.0;
     double Fy = 0.0;
     int nib;
-    double mass = 50.0;
+    double volume;
+    double surface;
+    double density;
     double gravityOBS = 0.0;//-9.81;
     bool FSI = false;
     double characteristic_length= 0.15;

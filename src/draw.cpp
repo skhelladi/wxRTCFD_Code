@@ -112,7 +112,8 @@ void Draw::paint(wxDC &dc)
             if (region->showPressure)
             {
                 double p = f->p[i * n + j];
-		//double s = 1.0 - f->ib[i * n + j];
+		//double p = f->phi[i * n + j]*10000;
+		//double s = f->ib[i * n + j];
                 double s = f->m[i * n + j];
                 color = getSciColor(p, minP, maxP);
                 if (region->showTracer)
@@ -125,7 +126,6 @@ void Draw::paint(wxDC &dc)
             else if (region->showVelocity)
             {
                 double s = f->m[i * n + j];
-		//if (region->FSI) s = 0.0;
                 double Vel = f->Vel[i * n + j];
                 color = getSciColor(Vel, minVel, maxVel);
                 if (region->showTracer)

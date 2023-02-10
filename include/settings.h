@@ -23,12 +23,15 @@ wxArrayString getScalarList();
 
 vector<wxPoint> getSquarePoints(wxPoint pos, double length);
 vector<Point> getSquarePoints(Point pos, double length);
+vector<Point> getSquarePoints(Point pos, double length, double h);
 
 vector<wxPoint> getDiamondPoints(wxPoint pos, double length);
 vector<Point> getDiamondPoints(Point pos, double length);
+vector<Point> getDiamondPoints(Point pos, double length, double h);
 
 vector<wxPoint> getNacaPoints(wxPoint pos, double length);
-vector<Point> getNacaPoints(Point pos, double length); 
+vector<Point> getNacaPoints(Point pos, double length);
+vector<Point> getNacaPoints(Point pos, double length, double h);
 vector<Point> generateNacaProfile(Point pos, double chord, double thickness, int nb_points, double incidence=M_PI/12);
 vector<wxPoint> generateNacaProfile(wxPoint pos, double chord, double thickness, int nb_points, double incidence=M_PI/12);
 
@@ -37,7 +40,7 @@ vector<vector<wxPoint>> generateRotorPoints(wxPoint pos, double length);
 vector<vector<Point>> generateRotor(Point center, double radius, double chord, double thickness, int nb_points, int Z);
 vector<vector<wxPoint>> generateRotor(wxPoint center, double radius, double chord, double thickness, int nb_points, int Z);
 
-
+Point findNearest(vector<Point> polygon, Point cell);
 
 
 wxPoint *fromVectorToPtr(vector<wxPoint> pt);

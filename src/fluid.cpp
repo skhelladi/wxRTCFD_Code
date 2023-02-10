@@ -23,6 +23,7 @@ Fluid::Fluid(double _density, int _numX, int _numY, double _h, double _overRelax
     nx.resize(numCells);
     ny.resize(numCells);
     ib.resize(numCells);
+    phi.resize(numCells);
 }
 
 void Fluid::integrate(double dt, double gravity)
@@ -79,7 +80,7 @@ void Fluid::solveIncompressibility(int numIters, double dt)
                 v[i * n + j] -= sy0 * _p;
                 #pragma omp atomic update
                 v[i * n + j + 1] += sy1 * _p;
-            }
+	    }
         }
     }
 }
@@ -281,5 +282,5 @@ void Fluid::updateFluidParameters()
     nx.resize(numCells);
     ny.resize(numCells);
     ib.resize(numCells);
-
+    phi.resize(numCells);
 }

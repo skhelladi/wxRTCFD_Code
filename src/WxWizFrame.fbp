@@ -507,6 +507,13 @@
                                                     <property name="type">Bool</property>
                                                 </object>
                                                 <object class="propGridItem" expanded="0">
+                                                    <property name="help">Print obstacle</property>
+                                                    <property name="label">Obstacle display</property>
+                                                    <property name="name">m_propertyGridItem_obs_dis</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Bool</property>
+                                                </object>
+						<object class="propGridItem" expanded="0">
                                                     <property name="help"></property>
                                                     <property name="label">Post-processing</property>
                                                     <property name="name">m_propertyGridItem_postproc</property>
@@ -582,6 +589,20 @@
                                                     <property name="name">m_propertyGridItem_resolution</property>
                                                     <property name="permission">protected</property>
                                                     <property name="type">Int</property>
+					    	</object>
+						<object class="propGridItem" expanded="0">
+                                                    <property name="help"></property>
+                                                    <property name="label">Solid</property>
+                                                    <property name="name">m_propertyGridItem_solid</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Category</property>
+					    	</object>
+						<object class="propGridItem" expanded="0">
+                                                    <property name="help">Density of the solid</property>
+                                                    <property name="label">Solid density</property>
+                                                    <property name="name">m_propertyGridItem_sol_den</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Float</property>
                                                 </object>
                                             </object>
                                         </object>

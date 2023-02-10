@@ -66,6 +66,8 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
       pos = {0.4,0.5};
     }
 
+    obstacleGeometricalFeatures();
+
     if (RegionNr == 0)
     { // tank
 #pragma omp parallel for schedule(static) num_threads(numThreads)
@@ -89,7 +91,7 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showXVelocity = false;
         this->showYVelocity = false;
         this->showVelocityVectors = false;
-        this->showObstacle = true;
+        this->showObstacle = false;
         this->showObstaclePosition = false;
     }
     else if (RegionNr == 1 || RegionNr == 2 || RegionNr == 4)
@@ -152,7 +154,7 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showYVelocity = false;
         this->showVelocityVectors = false;
         this->characteristic_length = 0.075;
-        this->showObstacle = true;
+        this->showObstacle = false;
         this->showObstaclePosition = false;
         setObstacle(pos.x, pos.y, true);
     }
@@ -188,6 +190,41 @@ void Region::setObstacle(double x, double y, bool reset)
     }
 }
 
+void Region::obstacleGeometricalFeatures()
+{
+
+    double cv, cs;
+    switch (obstacle)
+    {
+    case CYLINDER:
+        cv = M_PI;
+	cs = 2.0*M_PI;
+        break;
+    case SQUARE:
+        cv = 4.0;
+	cs = 8.0;
+        break;
+    case DIAMOND:
+        cv = 4.0;
+	cs = 8.0;
+        break;
+    case NACA:
+        cv = 4.0; // TO BE MODIFIED
+	cs = 8.0; // TO BE MODIFIED
+        break;	
+    case ROTOR:
+        cv = 4.0;
+	cs = 8.0;
+        break;
+    default:
+        cv = M_PI;
+	cs = 2.0*M_PI;
+    }
+    this->volume = cv * pow(this->characteristic_length,2.0) * 1.0;
+    this->surface = cs * this->characteristic_length * 1.0;	
+
+}
+
 void Region::setObstacleCylinder(double x, double y, bool reset)
 {
 
@@ -218,12 +255,8 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
 
             double dx = (i + 0.5) * f->h - x;
             double dy = (j + 0.5) * f->h - y;
-
-	    //if (abs(dx)<1e-6) cout<<"i & j "<< i << " " << j << " / dx & dy: "<< dx << " " << dy <<endl;
-	    //if (abs(dy)<1e-6) cout<<"i & j "<< i << " " << j << " / dx & dy: "<< dx << " " << dy <<endl;
-	    //if (sqrt(dx*dx + dy*dy)<1e-6) cout<< "Verif: " << sqrt(dx*dx + dy*dy) << endl;
-	    f->nx[i * n + j] = dx / sqrt(dx*dx + dy*dy);
-	    f->ny[i * n + j] = dy / sqrt(dx*dx + dy*dy);
+            double dist = sqrt(dx * dx + dy * dy) - r;
+            if (this->FSI) f->phi[i * n + j] = dist;
 
             if (dx * dx + dy * dy < r * r)
             {
@@ -237,30 +270,19 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
                 f->u[(i + 1) * n + j] = vx;
                 f->v[i * n + j] = vy;
                 f->v[i * n + j + 1] = vy;
-            }
+
+		if (this->FSI) f->phi[i * n + j] *= -1;
+	    }
         }
     }
 
-    this->nib = 0;
-    for (int i = 1; i < f->numX - 2; i++)
+    if (this->FSI) 
     {
-        for (int j = 1; j < f->numY - 2; j++)
-        {
-            if (f->s[i * n + j] == 1.0)
-            {
-                f->ib[i * n + j] = 0.0;
-                if (f->s[(i-1) * n + j] == 0.0 || f->s[(i+1) * n + j] == 0.0 || f->s[i * n + (j-1)] == 0.0 || f->s[i * n + (j+1)] == 0.0)
-                {
-                    f->ib[i * n + j] = 1.0;
-                    this->nib++;
-                }
-            }
-
-        }
+	getIbCells();
+	computeNormals();
     }
-    //cout<<" nib  " << nib << endl;
 
-    this->showObstacle = true;
+    //	  this->showObstacle = false;
     //    this->showObstaclePosition=true;
 }
 
@@ -281,7 +303,10 @@ void Region::setObstacleSquare(double x, double y, bool reset)
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
 
-    vector<Point> P = getSquarePoints(Point({x, y}), r);
+    vector<Point> P;
+    P = getSquarePoints(Point({x, y}), r);
+    vector<Point> Pfsi;
+    Pfsi = getSquarePoints(Point({x, y}), r, f->h);
 
     int n = f->numY;
     #pragma omp parallel for schedule(static) num_threads(f->numThreads)
@@ -290,13 +315,14 @@ void Region::setObstacleSquare(double x, double y, bool reset)
         for (int j = 1; j < f->numY - 2; j++)
         {
 
+	    double xx = (i + 0.5) * f->h;
+	    double yy = (j + 0.5) * f->h;
+
+	    if (this->FSI) f->phi[i * n + j] = computeDistToObstacle(Pfsi, Point({xx, yy}));
+
             f->s[i * n + j] = 1.0;
 
-            // double dx = (i + 0.5) * f->h - x;
-            // double dy = (j + 0.5) * f->h - y;
-            
-            // if (fabs(dx)<r&&fabs(dy)<r)
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({xx, yy})))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 3)
@@ -308,11 +334,19 @@ void Region::setObstacleSquare(double x, double y, bool reset)
                 f->u[(i + 1) * n + j] = vx;
                 f->v[i * n + j] = vy;
                 f->v[i * n + j + 1] = vy;
+
+		if (this->FSI) f->phi[i * n + j] *= -1;
             }
         }
     }
 
-    this->showObstacle = true;
+    if (this->FSI)
+    {
+        getIbCells();
+        computeNormals();
+    }
+
+    //this->showObstacle = false;
 }
 
 void Region::setObstacleDiamond(double x, double y, bool reset)
@@ -332,27 +366,25 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
     Point center = {x, y};
-    vector<Point> P = getDiamondPoints(center, r);
-    //    double cd = sqrt(2) * f->h;
+    vector<Point> P;
+    P = getDiamondPoints(center, r);
+    vector<Point> Pfsi;
+    Pfsi = getDiamondPoints(Point({x, y}), r, f->h);
+
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
         {
 
+            double xx = (i + 0.5) * f->h;
+            double yy = (j + 0.5) * f->h;
+
+	    if (this->FSI) f->phi[i * n + j] = computeDistToObstacle(Pfsi, Point({xx, yy}));
+
             f->s[i * n + j] = 1.0;
 
-            // double dx = (i + 0.5) * f->h - x;
-            // double dy = (j + 0.5) * f->h - y;
-
-            // //! axis change by a rotation of theta=pi/4
-            // double dxb = sqrt(2) / 2 * (dx + dy);
-            // double dyb = sqrt(2) / 2 * (-dx + dy);
-
-            // if (fabs(dxb) < r && fabs(dyb) < r)
-            // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
-            
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({xx, yy})))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 3)
@@ -364,11 +396,19 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
                 f->u[(i + 1) * n + j] = vx;
                 f->v[i * n + j] = vy;
                 f->v[i * n + j + 1] = vy;
-            }
+
+		if (this->FSI) f->phi[i * n + j] *= -1;
+	    }
         }
     }
 
-    this->showObstacle = true;
+    if (this->FSI) 
+    {       
+        getIbCells();
+        computeNormals();
+    }
+
+    //this->showObstacle = false;
 }
 
 void Region::setObstacleNaca(double x, double y, bool reset)
@@ -388,27 +428,30 @@ void Region::setObstacleNaca(double x, double y, bool reset)
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
     Point center = {x, y};
-    vector<Point> P = getNacaPoints(center, r);
-    //    double cd = sqrt(2) * f->h;
+    vector<Point> P;
+    if (!this->FSI)
+    {
+    	P = getNacaPoints(center, r);
+    }
+    else
+    {
+    	P = getNacaPoints(center, r, f->h);
+    }
+
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
         {
 
+            double xx = (i + 0.5) * f->h;
+            double yy = (j + 0.5) * f->h;
+
+            if (this->FSI) f->phi[i * n + j] = computeDistToObstacle(P, Point({xx, yy}));
+
             f->s[i * n + j] = 1.0;
 
-            // double dx = (i + 0.5) * f->h - x;
-            // double dy = (j + 0.5) * f->h - y;
-
-            // //! axis change by a rotation of theta=pi/4
-            // double dxb = sqrt(2) / 2 * (dx + dy);
-            // double dyb = sqrt(2) / 2 * (-dx + dy);
-
-            // if (fabs(dxb) < r && fabs(dyb) < r)
-            // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
-            
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({xx, yy})))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 3)
@@ -420,17 +463,100 @@ void Region::setObstacleNaca(double x, double y, bool reset)
                 f->u[(i + 1) * n + j] = vx;
                 f->v[i * n + j] = vy;
                 f->v[i * n + j + 1] = vy;
-            }
+		
+		if (this->FSI) f->phi[i * n + j] *= -1;
+	    }
         }
     }
 
-    this->showObstacle = true;
+    if (this->FSI) 
+    {       
+        getIbCells();
+        computeNormals();
+    }
+
+    //this->showObstacle = false;
 }
 
 void Region::setObstacleRotor(double x, double y, bool reset)
 {
 }
 
+double Region::computeDistToObstacle(vector<Point> Pfsi, Point P)
+{
+    Point Pp;
+    Pp = findNearest(Pfsi, P);
+    double dist = sqrt(pow(P.x-Pp.x,2.0)+pow(P.y-Pp.y,2.0));
+
+    return dist;
+
+}
+
+void Region::getIbCells()
+{
+    shared_ptr<Fluid> f = this->fluid;
+    int n = f->numY;
+
+    //vector<double> gradsx, gradsy;
+    //gradsx.resize(f->numX*f->numY);
+    //gradsy.resize(f->numX*f->numY);
+
+    //for (int i = 2; i < f->numX - 2; i++)
+    //{
+    //    for (int j = 2; j < f->numY - 2; j++)
+    //    {
+    //        gradsx[i * n + j] = f->s[(i+1) * n + j] - f->s[(i-1) * n + j];
+    //        gradsy[i * n + j] = f->s[i * n + j + 1] - f->s[i * n + j - 1];
+    //    }
+    //}	
+
+    this->nib = 0;
+    for (int i = 2; i < f->numX - 3; i++)
+    {
+        for (int j = 2; j < f->numY - 3; j++)
+        {
+	    f->ib[i * n + j] = 0.0;
+            if (f->s[i * n + j] == 1.0)
+            {
+                f->ib[i * n + j] = 0.0;
+                if (f->s[(i-1) * n + j] == 0.0 || f->s[(i+1) * n + j] == 0.0 || f->s[i * n + (j-1)] == 0.0 || f->s[i * n + (j+1)] == 0.0)
+                {
+                    f->ib[i * n + j] = 1.0;
+                    this->nib++;
+                }
+		//double norm = sqrt(pow(gradsx[i * n + j],2.0) + pow(gradsy[i * n + j],2.0));
+		//if(norm>1e-09)
+		//{	
+		//	f->ib[i * n + j] = 1.0; 
+		//	this->nib++;
+		//}
+    	    }
+    	}
+    }
+}
+
+void Region::computeNormals()
+{
+    shared_ptr<Fluid> f = this->fluid;
+    int n = f->numY;
+
+    vector<double> gradsx, gradsy;
+    gradsx.resize(f->numX*f->numY);
+    gradsy.resize(f->numX*f->numY);
+    double SMALL = 1e-012;
+
+    for (int i = 1; i < f->numX - 2; i++)
+    {
+        for (int j = 1; j < f->numY - 2; j++)
+        {
+	    gradsx[i * n + j] = f->phi[(i+1) * n + j] - f->phi[(i-1) * n + j];
+            gradsy[i * n + j] = f->phi[i * n + j + 1] - f->phi[i * n + j - 1];
+	    double norm = sqrt(pow(gradsx[i * n + j],2.0) + pow(gradsy[i * n + j],2.0));
+	    f->nx[i * n + j] = gradsx[i * n + j] / (norm + SMALL);
+	    f->ny[i * n + j] = gradsy[i * n + j] / (norm + SMALL);
+	}
+    }
+}
 
 void Region::writeCdinFile()
 {
@@ -461,10 +587,14 @@ void Region::writeCdinFile()
 void Region::moveObstacle(double dt, bool reset)
 {
     computeForce();
+
+    double mass = this->density * this->volume;
+    double rhobar = (this->density - this->fluid->density) / this->density;
+
     if (this->nib != 0)
     {
-	this->ax = (1.0/this->mass) * this->Fx;
-        this->ay = this->gravityOBS + (1.0/this->mass) * this->Fy;
+	this->ax = (1.0/mass) * this->Fx;
+        this->ay = (1.0/mass) * this->Fy + rhobar * this->gravity;
     }
     else
     {
@@ -484,16 +614,10 @@ void Region::moveObstacle(double dt, bool reset)
 
 void Region::computeForce()
 {
-    // PFD : m_obs * a_obs = m_obs * gravity + int_sobs P dS
-    // a_x = (1/m) * sum P nx
-    // a_y = -g + (1/m) * sum P ny
-
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
 
-    double area = 2.0*acos(-1.0)*this->characteristic_length*1.0;
-
-    double dS = area/this->nib;
+    double dS = this->surface/this->nib;
     double _Fx = 0.0;
     double _Fy = 0.0;
 

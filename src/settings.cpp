@@ -52,6 +52,34 @@ vector<Point> getSquarePoints(Point pos, double length)
             {pos.x - length, pos.y - length}};
 }
 
+vector<Point> getSquarePoints(Point pos, double length, double h)
+{
+    vector<Point> points;
+    int n = floor(length / h);
+    double dd = 2.0*length/n;
+    double x,y;
+    for (int i = 0; i <= n; i++)
+    {
+        x = pos.x - length + i*dd;
+	y = pos.y - length;
+        points.push_back({x, y});
+	x = pos.x - length + i*dd;
+        y = pos.y + length;
+        points.push_back({x, y});
+    }
+    for (int i = 1; i <= n-1; i++)
+    {
+	x = pos.x - length;
+        y = pos.y - length + i*dd;
+        points.push_back({x, y});
+	x = pos.x + length;
+        y = pos.y - length + i*dd;
+        points.push_back({x, y});
+    }
+
+    return points;
+}
+
 vector<wxPoint> getDiamondPoints(wxPoint pos, double length)
 {
     double c = sqrt(2.0);
@@ -70,6 +98,35 @@ vector<Point> getDiamondPoints(Point pos, double length)
             {pos.x - c * length, pos.y}};
 }
 
+vector<Point> getDiamondPoints(Point pos, double length, double h)
+{
+    vector<Point> points;
+    int n = floor(length / h);
+    double c = sqrt(2.0);
+    double dd = c*length/n;
+    double x,y;
+    for (int i = 0; i <= n; i++)
+    {
+        x = pos.x - c*length + i*dd;
+        y = pos.y + i*dd;
+        points.push_back({x, y});
+        x = pos.x + i*dd;
+        y = pos.y - c*length + i*dd;
+        points.push_back({x, y});
+    }
+    for (int i = 1; i <= n-1; i++)
+    {
+	x = pos.x - c*length + i*dd;
+	y = pos.y - i*dd;
+	points.push_back({x, y});
+	x = pos.x + i*dd;
+	y = pos.y + c*length - i*dd;
+	points.push_back({x, y});
+    }
+
+    return points;
+}
+
 vector<wxPoint> getNacaPoints(wxPoint pos, double length)
 {
     return generateNacaProfile(pos, 4.0 * length, 0.12, 10, M_PI / 12);
@@ -78,6 +135,12 @@ vector<wxPoint> getNacaPoints(wxPoint pos, double length)
 vector<Point> getNacaPoints(Point pos, double length)
 {
     return generateNacaProfile(pos, 4.0 * length, 0.12, 10, -M_PI / 12);
+}
+
+vector<Point> getNacaPoints(Point pos, double length, double h)
+{
+    int n = 1.5*floor(4.0 * length / h);
+    return generateNacaProfile(pos, 4.0 * length, 0.12, n, -M_PI / 12);
 }
 
 wxPoint *fromVectorToPtr(vector<wxPoint> pt)
@@ -233,3 +296,22 @@ vector<vector<Point>> generateCircularRepeats(vector<Point> polygon, Point cente
     return circularRepeats;
 }
 
+Point findNearest(vector<Point> polygon, Point cell)
+{
+    Point Pp;
+    double minDist = 1e06;
+
+    for (int i = 0; i < polygon.size(); i++)
+    {
+	double x = polygon[i].x;
+	double y = polygon[i].y;
+	double dist = sqrt(pow(x-cell.x,2.0)+pow(y-cell.y,2.0));
+	if (dist<minDist)
+	{
+	    minDist = dist;
+	    Pp = polygon[i];
+	}
+    }
+
+    return Pp;
+}

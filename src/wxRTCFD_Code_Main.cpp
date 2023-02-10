@@ -63,6 +63,7 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     m_propertyGridItem_overrelaxation->SetValue(1.9);
     m_propertyGridItem_resolution->SetValue(50);
     m_propertyGridItem_nb_cpu->SetValue(4);
+    m_propertyGridItem_sol_den->SetValue(1000.0);
 
     //    m_panel_scene->SetBackgroundColour( *wxWHITE);
 
@@ -153,6 +154,8 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
     value = m_propertyGridItem_density->GetValue();
     draw->region->fluid->density = value.As<double>();
 
+    value = m_propertyGridItem_sol_den->GetValue();
+    draw->region->density = value.As<double>();
     
     // draw->region->updateRegionSize(draw->height(),draw->width());
 
@@ -171,6 +174,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
         m_propertyGridItem_vel_vec->SetValue(draw->region->showVelocityVectors);
         m_propertyGridItem_tracer->SetValue(draw->region->showTracer);
         m_propertyGridItem_obs_pos->SetValue(draw->region->showObstaclePosition);
+	m_propertyGridItem_obs_dis->SetValue(draw->region->showObstacle);
 	m_propertyGridItem_cd->SetValue(draw->region->writeCd);
         m_propertyGridItem_nb_cpu->SetValue(draw->region->fluid->numThreads);
 
@@ -239,6 +243,8 @@ void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
         OnScalarPropertyChanged(value.As<int>());
     else if (property->GetName() == "Obstacle position")
         OnObstaclePositionPropertyChanged(value.As<bool>());
+    else if (property->GetName() == "Obstacle display")
+        OnObstacleDisplayPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Tracer")
         OnTracerPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Streamlines")
@@ -255,6 +261,8 @@ void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
         OnResolutionPropertyChanged(value.As<int>());
     else if (property->GetName() == "CPU Number")
         OnNumThreadsPropertyChanged(value.As<int>());
+    else if (property->GetName() == "Solid density")
+	OnSolidDensityPropertyChanged(value.As<double>());
     //    wxString strValue = property->GetValueAsString();
 
     //    wxString msg = property->GetName()+"value = "+strValue;
@@ -370,6 +378,11 @@ void wxRTCFD_Code_Frame::OnObstaclePositionPropertyChanged(bool value)
     draw->region->showObstaclePosition = value;
 }
 
+void wxRTCFD_Code_Frame::OnObstacleDisplayPropertyChanged(bool value)
+{
+    draw->region->showObstacle = value;
+}
+
 void wxRTCFD_Code_Frame::OnTracerPropertyChanged(bool value)
 {
     draw->region->showTracer = value;
@@ -404,7 +417,14 @@ void wxRTCFD_Code_Frame::OnResolutionPropertyChanged(int value)
 {
     draw->region->resolution = value;
 }
+
 void wxRTCFD_Code_Frame::OnNumThreadsPropertyChanged(int value)
 {
     draw->region->fluid->numThreads = value;
 }
+
+void wxRTCFD_Code_Frame::OnSolidDensityPropertyChanged(double value)
+{
+    draw->region->density = value;
+}
+
