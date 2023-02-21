@@ -57,6 +57,8 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     //! initialization
 
     m_propertyGridItem_case->SetValue("Wind tunnel");
+    m_propertyGridItem_obs_dis->SetValue(true);
+    m_propertyGridItem_gravity->SetValue("None");
     m_propertyGridItem_tracer->SetValue(true);
     m_propertyGridItem_cd->SetValue(false);
     m_propertyGridItem_density->SetValue(1000.0);
@@ -177,6 +179,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
 	m_propertyGridItem_obs_dis->SetValue(draw->region->showObstacle);
 	m_propertyGridItem_cd->SetValue(draw->region->writeCd);
         m_propertyGridItem_nb_cpu->SetValue(draw->region->fluid->numThreads);
+	m_propertyGridItem_fsi->SetValue(draw->region->FSI);
 
 	if(draw->region->writeCd)
 	{
@@ -245,6 +248,8 @@ void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
         OnObstaclePositionPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Obstacle display")
         OnObstacleDisplayPropertyChanged(value.As<bool>());
+    else if (property->GetName() == "Gravity options")
+        OnGravityPropertyChanged(value.As<int>());
     else if (property->GetName() == "Tracer")
         OnTracerPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Streamlines")
@@ -261,6 +266,8 @@ void wxRTCFD_Code_Frame::onPropertyGridChanged(wxPropertyGridEvent &event)
         OnResolutionPropertyChanged(value.As<int>());
     else if (property->GetName() == "CPU Number")
         OnNumThreadsPropertyChanged(value.As<int>());
+    else if (property->GetName() == "FSI")
+        OnFSIPropertyChanged(value.As<bool>());
     else if (property->GetName() == "Solid density")
 	OnSolidDensityPropertyChanged(value.As<double>());
     //    wxString strValue = property->GetValueAsString();
@@ -301,6 +308,43 @@ void wxRTCFD_Code_Frame::OnCasePropertyChanged(int value)
     }
 }
 
+void wxRTCFD_Code_Frame::OnGravityPropertyChanged(int value)
+{
+    switch (value)
+    {
+    case 0: // None
+    {
+	draw->region->gravity[0] = 0.0;
+	draw->region->gravity[1] = 0.0;
+        break;
+    }
+    case 1: // + X direction
+    {
+	draw->region->gravity[0] = 9.81;
+        draw->region->gravity[1] = 0.0;
+	break;
+    }
+    case 2: // - X direction
+    {
+	draw->region->gravity[0] = -9.81;
+        draw->region->gravity[1] = 0.0;
+	break;
+    }
+    case 3: // + Y direction
+    {
+	draw->region->gravity[0] = 0.0;
+        draw->region->gravity[1] = 9.81;
+	break;
+    }
+    case 4: // - Y direction
+    {
+	draw->region->gravity[0] = 0.0;
+        draw->region->gravity[1] = -9.81;
+	break;
+    }
+    }
+}
+
 void wxRTCFD_Code_Frame::OnObstaclePropertyChanged(int value)
 {
     switch (value)
@@ -312,12 +356,9 @@ void wxRTCFD_Code_Frame::OnObstaclePropertyChanged(int value)
         draw->region->obstacle = SQUARE;
         break;
     case 3:
-        draw->region->obstacle = DIAMOND;
-        break;
-    case 4:
         draw->region->obstacle = NACA;
         break;
-    case 5:
+    case 4:
         draw->region->obstacle = ROTOR;
         break;
     default:
@@ -421,6 +462,11 @@ void wxRTCFD_Code_Frame::OnResolutionPropertyChanged(int value)
 void wxRTCFD_Code_Frame::OnNumThreadsPropertyChanged(int value)
 {
     draw->region->fluid->numThreads = value;
+}
+
+void wxRTCFD_Code_Frame::OnFSIPropertyChanged(bool value)
+{
+    draw->region->FSI = value;
 }
 
 void wxRTCFD_Code_Frame::OnSolidDensityPropertyChanged(double value)

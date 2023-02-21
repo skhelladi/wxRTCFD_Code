@@ -500,7 +500,7 @@
                                                     <property name="type">Enum</property>
                                                 </object>
                                                 <object class="propGridItem" expanded="0">
-                                                    <property name="help">Print obstacle pisition</property>
+                                                    <property name="help">Print obstacle position</property>
                                                     <property name="label">Obstacle position</property>
                                                     <property name="name">m_propertyGridItem_obs_pos</property>
                                                     <property name="permission">protected</property>
@@ -512,7 +512,14 @@
                                                     <property name="name">m_propertyGridItem_obs_dis</property>
                                                     <property name="permission">protected</property>
                                                     <property name="type">Bool</property>
-                                                </object>
+					    	</object>
+						<object class="propGridItem" expanded="0">
+                                                    <property name="help">Gravity options</property>
+                                                    <property name="label">Gravity</property>
+                                                    <property name="name">m_propertyGridItem_gravity</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Enum</property>
+                                                </object>    
 						<object class="propGridItem" expanded="0">
                                                     <property name="help"></property>
                                                     <property name="label">Post-processing</property>
@@ -598,12 +605,20 @@
                                                     <property name="type">Category</property>
 					    	</object>
 						<object class="propGridItem" expanded="0">
+                                                    <property name="help">FSI cases</property>
+                                                    <property name="label">FSI</property>
+                                                    <property name="name">m_propertyGridItem_fsi</property>
+                                                    <property name="permission">protected</property>
+                                                    <property name="type">Bool</property>
+					        </object>
+						<object class="propGridItem" expanded="0">
                                                     <property name="help">Density of the solid</property>
                                                     <property name="label">Solid density</property>
                                                     <property name="name">m_propertyGridItem_sol_den</property>
                                                     <property name="permission">protected</property>
                                                     <property name="type">Float</property>
                                                 </object>
+
                                             </object>
                                         </object>
                                     </object>

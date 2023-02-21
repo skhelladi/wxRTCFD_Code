@@ -17,7 +17,6 @@ wxArrayString getObstacleList()
     wxArrayString arrObject;
     arrObject.Add("Cylinder");
     arrObject.Add("Square");
-    arrObject.Add("Diamond");
     arrObject.Add("NACA");
     arrObject.Add("Rotor");
 
@@ -36,23 +35,44 @@ wxArrayString getScalarList()
     return arrScalar;
 }
 
-vector<wxPoint> getSquarePoints(wxPoint pos, double length)
+wxArrayString getGravityList()
 {
-    return {wxPoint(pos.x - length, pos.y + length),
+    wxArrayString arrGrav;
+    arrGrav.Add("None");
+    arrGrav.Add("+ x-direction");
+    arrGrav.Add("- x-direction");
+    arrGrav.Add("+ y-direction");
+    arrGrav.Add("- y-direction");
+
+    return arrGrav;
+}
+
+vector<wxPoint> getSquarePoints(wxPoint pos, double length, double theta)
+{
+    vector<wxPoint> points;
+
+    points = {wxPoint(pos.x - length, pos.y + length),
             wxPoint(pos.x + length, pos.y + length),
             wxPoint(pos.x + length, pos.y - length),
             wxPoint(pos.x - length, pos.y - length)};
+
+    return rotatePolygon(points, pos, -theta);
 }
 
-vector<Point> getSquarePoints(Point pos, double length)
+vector<Point> getSquarePoints(Point pos, double length, double theta)
 {
-    return {{pos.x - length, pos.y + length},
+
+    vector<Point> points;
+
+    points =  {{pos.x - length, pos.y + length},
             {pos.x + length, pos.y + length},
             {pos.x + length, pos.y - length},
             {pos.x - length, pos.y - length}};
+
+    return rotatePolygon(points, pos, theta);
 }
 
-vector<Point> getSquarePoints(Point pos, double length, double h)
+vector<Point> getSquarePoints(Point pos, double length, double h, double theta)
 {
     vector<Point> points;
     int n = floor(length / h);
@@ -77,70 +97,23 @@ vector<Point> getSquarePoints(Point pos, double length, double h)
         points.push_back({x, y});
     }
 
-    return points;
+    return rotatePolygon(points, pos, theta);
 }
 
-vector<wxPoint> getDiamondPoints(wxPoint pos, double length)
+vector<wxPoint> getNacaPoints(wxPoint pos, double length, double theta)
 {
-    double c = sqrt(2.0);
-    return {wxPoint(pos.x, pos.y + c * length),
-            wxPoint(pos.x + c * length, pos.y),
-            wxPoint(pos.x, pos.y - c * length),
-            wxPoint(pos.x - c * length, pos.y)};
+    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, -theta);
 }
 
-vector<Point> getDiamondPoints(Point pos, double length)
+vector<Point> getNacaPoints(Point pos, double length, double theta)
 {
-    double c = sqrt(2.0);
-    return {{pos.x, pos.y + c * length},
-            {pos.x + c * length, pos.y},
-            {pos.x, pos.y - c * length},
-            {pos.x - c * length, pos.y}};
+    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, theta);
 }
 
-vector<Point> getDiamondPoints(Point pos, double length, double h)
-{
-    vector<Point> points;
-    int n = floor(length / h);
-    double c = sqrt(2.0);
-    double dd = c*length/n;
-    double x,y;
-    for (int i = 0; i <= n; i++)
-    {
-        x = pos.x - c*length + i*dd;
-        y = pos.y + i*dd;
-        points.push_back({x, y});
-        x = pos.x + i*dd;
-        y = pos.y - c*length + i*dd;
-        points.push_back({x, y});
-    }
-    for (int i = 1; i <= n-1; i++)
-    {
-	x = pos.x - c*length + i*dd;
-	y = pos.y - i*dd;
-	points.push_back({x, y});
-	x = pos.x + i*dd;
-	y = pos.y + c*length - i*dd;
-	points.push_back({x, y});
-    }
-
-    return points;
-}
-
-vector<wxPoint> getNacaPoints(wxPoint pos, double length)
-{
-    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, M_PI / 12);
-}
-
-vector<Point> getNacaPoints(Point pos, double length)
-{
-    return generateNacaProfile(pos, 4.0 * length, 0.12, 10, -M_PI / 12);
-}
-
-vector<Point> getNacaPoints(Point pos, double length, double h)
+vector<Point> getNacaPoints(Point pos, double length, double h, double theta)
 {
     int n = 1.5*floor(4.0 * length / h);
-    return generateNacaProfile(pos, 4.0 * length, 0.12, n, -M_PI / 12);
+    return generateNacaProfile(pos, 4.0 * length, 0.12, n, theta);
 }
 
 wxPoint *fromVectorToPtr(vector<wxPoint> pt)

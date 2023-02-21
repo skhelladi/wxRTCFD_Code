@@ -6,7 +6,7 @@
 
 #define DEBUG 0
 
-enum OBJ {CYLINDER, SQUARE, DIAMOND, NACA, ROTOR};
+enum OBJ {CYLINDER, SQUARE, NACA, ROTOR};
 
 // #define CALL_SET_OBSTACLE(object,ptrToMember)  (object.*ptrToMember)
 
@@ -35,16 +35,17 @@ public:
     }
 
     void setupRegion(int _RegionNr = 0, double _overRelaxation=1.9, int _resolution=50, double _density=1000, int _numThreads=4);
-    void setObstacle(double x, double y, bool reset);
-    void setObstacleCylinder(double x, double y, bool reset);
-    void setObstacleSquare(double x, double y, bool reset);
-    void setObstacleDiamond(double x, double y, bool reset);
-    void setObstacleNaca(double x, double y, bool reset);
-    void setObstacleRotor(double x, double y, bool reset);
+    void setObstacle(double x, double y, double theta, bool reset);
+    void setObstacleCylinder(double x, double y, double theta, bool reset);
+    void setObstacleSquare(double x, double y, double theta, bool reset);
+    void setObstacleDiamond(double x, double y, double theta, bool reset);
+    void setObstacleNaca(double x, double y, double theta, bool reset);
+    void setObstacleRotor(double x, double y, double theta, bool reset);
     void moveObstacle(double dt, bool reset);
     void updateRegionSize(int _height, int _width);
     void update();
 
+    double getTheta0();
     void obstacleGeometricalFeatures();
 
     double computeDistToObstacle(vector<Point> Pfsi, Point P);
@@ -59,7 +60,8 @@ public:
 
     string text="";
     double inVel = 2.0;
-    double gravity = -9.81;
+    //double gravity = -9.81;
+    double gravity[2];
     double dt =  1.0 / 60.0;
     int numIters= 40;
     int frameNr= 0;
@@ -72,16 +74,20 @@ public:
     double ay = 0.0;
     double Fx = 0.0;
     double Fy = 0.0;
+    double theta = 0.0;
+    double omega = 0.0;
+    double Mz = 0.0;
     int nib;
     double volume;
     double surface;
     double density;
-    double gravityOBS = 0.0;//-9.81;
+    double mass;
+    double Ip;
     bool FSI = false;
     double characteristic_length= 0.15;
     bool paused= false;
     int RegionNr= 0;
-    bool showObstacle= false;
+    bool showObstacle= true;
     bool showObstaclePosition=false;
     bool showStreamlines= false;
     bool showVelocity= false;

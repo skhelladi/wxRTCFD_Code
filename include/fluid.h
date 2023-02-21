@@ -25,7 +25,7 @@ public:
     Fluid(double _density, int _numX, int _numY, double _h, double _overRelaxation=1.9, int _numThreads=4);
 
 // ----------------- start of simulator ------------------------------
-    void integrate(double dt, double gravity);
+    void integrate(double dt, double gravity[2]);
     void solveIncompressibility(int numIters, double dt);
     void extrapolate();
     double sampleField(double x, double y, int field);
@@ -34,7 +34,7 @@ public:
     void computeVelosityMagnitude();
     void advectVelocity(double dt);
     void advectTracer(double dt);
-    void simulate(double dt, double gravity, int numIters);
+    void simulate(double dt, double gravity[2], int numIters);
 // ----------------- end of simulator ------------------------------
 
     void updateFluidParameters();

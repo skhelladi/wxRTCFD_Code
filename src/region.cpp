@@ -65,6 +65,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
     {
       pos = {0.4,0.5};
     }
+    double theta = getTheta0();
+    this->theta = theta;
+    cout << "init :" << theta << endl;
 
     obstacleGeometricalFeatures();
 
@@ -81,9 +84,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
                 f->s[i * n + j] = s;
             }
         }
-        setObstacle(pos.x, pos.y, true);
+        setObstacle(pos.x, pos.y, theta, true);
         // CALL_SET_OBSTACLE(this,setObstacle)(0.4, 0.5, true);
-        this->gravity = -9.81;
+        //this->gravity = -9.81;
         this->showPressure = true;
         this->showTracer = false;
         this->showStreamlines = false;
@@ -91,7 +94,7 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showXVelocity = false;
         this->showYVelocity = false;
         this->showVelocityVectors = false;
-        this->showObstacle = false;
+        this->showObstacle = true;
         this->showObstaclePosition = false;
     }
     else if (RegionNr == 1 || RegionNr == 2 || RegionNr == 4)
@@ -122,9 +125,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         for (int j = minJ; j < maxJ; j++)
             f->m[j] = 0.0;
 
-        setObstacle(pos.x, pos.y, true);
+        setObstacle(pos.x, pos.y, theta, true);
 
-        this->gravity = 0.0;
+        //this->gravity = 0.0;
         this->showPressure = false;
         this->showTracer = true;
         this->showStreamlines = false;
@@ -144,7 +147,7 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
     }
     else if (RegionNr == 3)
     { // paint
-        this->gravity = 0.0;
+        //this->gravity = 0.0;
         this->overRelaxation = 1.0;
         this->showPressure = false;
         this->showTracer = true;
@@ -154,9 +157,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
         this->showYVelocity = false;
         this->showVelocityVectors = false;
         this->characteristic_length = 0.075;
-        this->showObstacle = false;
+        this->showObstacle = true;
         this->showObstaclePosition = false;
-        setObstacle(pos.x, pos.y, true);
+        setObstacle(pos.x, pos.y, theta, true);
     }
 
     //    document.getElementById("streamButton").checked = this->showStreamlines;
@@ -166,66 +169,88 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
     //    document.getElementById("overrelaxButton").checked = this->overRelaxation > 1.0;
 }
 
-void Region::setObstacle(double x, double y, bool reset)
+void Region::setObstacle(double x, double y, double theta, bool reset)
 {
     switch (obstacle)
     {
     case CYLINDER:
-        setObstacleCylinder(x, y, reset);
+        setObstacleCylinder(x, y, theta, reset);
         break;
     case SQUARE:
-        setObstacleSquare(x, y, reset);
-        break;
-    case DIAMOND:
-        setObstacleDiamond(x, y, reset);
+        setObstacleSquare(x, y, theta, reset);
         break;
     case NACA:
-        setObstacleNaca(x, y, reset);
+        setObstacleNaca(x, y, theta, reset);
         break;
     case ROTOR:
-        setObstacleRotor(x, y, reset);
+        setObstacleRotor(x, y, theta, reset);
         break;
     default:
-        setObstacleCylinder(x, y, reset);
+        setObstacleCylinder(x, y, theta, reset);
+    }
+}
+
+
+double Region::getTheta0()
+{
+    switch (obstacle)
+    {
+    case CYLINDER:
+	return 0.0;
+        break;
+    case SQUARE:
+	return -M_PI/6;
+        break;
+    case NACA:
+	return -M_PI/10;
+        break;
+    case ROTOR:
+	return 0.0;
+        break;
+    default:
+	return 0.0;
     }
 }
 
 void Region::obstacleGeometricalFeatures()
 {
 
-    double cv, cs;
+    double cv, cs, ci;
     switch (obstacle)
     {
     case CYLINDER:
         cv = M_PI;
 	cs = 2.0*M_PI;
+	ci = 1.0/2.0;
         break;
     case SQUARE:
         cv = 4.0;
 	cs = 8.0;
-        break;
-    case DIAMOND:
-        cv = 4.0;
-	cs = 8.0;
+	ci = 1.0/12.0;
         break;
     case NACA:
         cv = 4.0; // TO BE MODIFIED
 	cs = 8.0; // TO BE MODIFIED
+	ci = 1.0/12.0; // TO BE MODIFIED
         break;	
     case ROTOR:
         cv = 4.0;
 	cs = 8.0;
+	ci = 1.0/12.0;
         break;
     default:
         cv = M_PI;
 	cs = 2.0*M_PI;
+	ci = 1.0/2.0;
     }
     this->volume = cv * pow(this->characteristic_length,2.0) * 1.0;
     this->surface = cs * this->characteristic_length * 1.0;	
 
+    this->mass = this->volume * this->density;
+    this->Ip = ci * this->mass * pow(this->characteristic_length,2.0); 
 }
 
-void Region::setObstacleCylinder(double x, double y, bool reset)
+void Region::setObstacleCylinder(double x, double y, double theta, bool reset)
 {
 
     double vx = 0.0;
@@ -239,6 +264,7 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
 
     this->obstacleX = x;
     this->obstacleY = y;
+    this->theta = theta;
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
@@ -266,10 +292,10 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
                 else
                     f->m[i * n + j] = 1.0;
 
-                f->u[i * n + j] = vx;
-                f->u[(i + 1) * n + j] = vx;
-                f->v[i * n + j] = vy;
-                f->v[i * n + j + 1] = vy;
+                f->u[i * n + j] = vx - this->omega * dy;
+                f->u[(i + 1) * n + j] = vx - this->omega * dy;
+                f->v[i * n + j] = vy + this->omega * dx;
+                f->v[i * n + j + 1] = vy + this->omega * dx;
 
 		if (this->FSI) f->phi[i * n + j] *= -1;
 	    }
@@ -282,11 +308,9 @@ void Region::setObstacleCylinder(double x, double y, bool reset)
 	computeNormals();
     }
 
-    //	  this->showObstacle = false;
-    //    this->showObstaclePosition=true;
 }
 
-void Region::setObstacleSquare(double x, double y, bool reset)
+void Region::setObstacleSquare(double x, double y, double theta, bool reset)
 {
 
     double vx = 0.0;
@@ -300,16 +324,17 @@ void Region::setObstacleSquare(double x, double y, bool reset)
 
     this->obstacleX = x;
     this->obstacleY = y;
+    this->theta = theta;
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
 
     vector<Point> P;
-    P = getSquarePoints(Point({x, y}), r);
+    P = getSquarePoints(Point({x, y}), r, theta);
     vector<Point> Pfsi;
-    Pfsi = getSquarePoints(Point({x, y}), r, f->h);
+    Pfsi = getSquarePoints(Point({x, y}), r, f->h, theta);
 
     int n = f->numY;
-    #pragma omp parallel for schedule(static) num_threads(f->numThreads)
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
@@ -330,10 +355,10 @@ void Region::setObstacleSquare(double x, double y, bool reset)
                 else
                     f->m[i * n + j] = 1.0;
 
-                f->u[i * n + j] = vx;
-                f->u[(i + 1) * n + j] = vx;
-                f->v[i * n + j] = vy;
-                f->v[i * n + j + 1] = vy;
+                f->u[i * n + j] = vx - this->omega * (yy - y);
+                f->u[(i + 1) * n + j] = vx - this->omega * (yy - y);
+                f->v[i * n + j] = vy + this->omega * (xx - x);
+                f->v[i * n + j + 1] = vy + this->omega * (xx - x);
 
 		if (this->FSI) f->phi[i * n + j] *= -1;
             }
@@ -346,10 +371,9 @@ void Region::setObstacleSquare(double x, double y, bool reset)
         computeNormals();
     }
 
-    //this->showObstacle = false;
 }
 
-void Region::setObstacleDiamond(double x, double y, bool reset)
+void Region::setObstacleNaca(double x, double y, double theta, bool reset)
 {
     double vx = 0.0;
     double vy = 0.0;
@@ -362,68 +386,7 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
 
     this->obstacleX = x;
     this->obstacleY = y;
-    double r = this->characteristic_length;
-    shared_ptr<Fluid> f = this->fluid;
-    int n = f->numY;
-    Point center = {x, y};
-    vector<Point> P;
-    P = getDiamondPoints(center, r);
-    vector<Point> Pfsi;
-    Pfsi = getDiamondPoints(Point({x, y}), r, f->h);
-
-#pragma omp parallel for schedule(static) num_threads(f->numThreads)
-    for (int i = 1; i < f->numX - 2; i++)
-    {
-        for (int j = 1; j < f->numY - 2; j++)
-        {
-
-            double xx = (i + 0.5) * f->h;
-            double yy = (j + 0.5) * f->h;
-
-	    if (this->FSI) f->phi[i * n + j] = computeDistToObstacle(Pfsi, Point({xx, yy}));
-
-            f->s[i * n + j] = 1.0;
-
-            if (isInsidePolygon(P, Point({xx, yy})))
-            {
-                f->s[i * n + j] = 0.0;
-                if (this->RegionNr == 3)
-                    f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
-                else
-                    f->m[i * n + j] = 1.0;
-
-                f->u[i * n + j] = vx;
-                f->u[(i + 1) * n + j] = vx;
-                f->v[i * n + j] = vy;
-                f->v[i * n + j + 1] = vy;
-
-		if (this->FSI) f->phi[i * n + j] *= -1;
-	    }
-        }
-    }
-
-    if (this->FSI) 
-    {       
-        getIbCells();
-        computeNormals();
-    }
-
-    //this->showObstacle = false;
-}
-
-void Region::setObstacleNaca(double x, double y, bool reset)
-{
-    double vx = 0.0;
-    double vy = 0.0;
-
-    if (!reset)
-    {
-        vx = (x - this->obstacleX) / this->dt;
-        vy = (y - this->obstacleY) / this->dt;
-    }
-
-    this->obstacleX = x;
-    this->obstacleY = y;
+    this->theta = theta;
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
@@ -431,11 +394,11 @@ void Region::setObstacleNaca(double x, double y, bool reset)
     vector<Point> P;
     if (!this->FSI)
     {
-    	P = getNacaPoints(center, r);
+    	P = getNacaPoints(center, r, theta);
     }
     else
     {
-    	P = getNacaPoints(center, r, f->h);
+	P = getNacaPoints(center, r, f->h, theta);
     }
 
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
@@ -459,10 +422,10 @@ void Region::setObstacleNaca(double x, double y, bool reset)
                 else
                     f->m[i * n + j] = 1.0;
 
-                f->u[i * n + j] = vx;
-                f->u[(i + 1) * n + j] = vx;
-                f->v[i * n + j] = vy;
-                f->v[i * n + j + 1] = vy;
+                f->u[i * n + j] = vx - this->omega * (yy - y);
+                f->u[(i + 1) * n + j] = vx - this->omega * (yy - y);
+                f->v[i * n + j] = vy + this->omega * (xx - x);
+                f->v[i * n + j + 1] = vy + this->omega * (xx - x);
 		
 		if (this->FSI) f->phi[i * n + j] *= -1;
 	    }
@@ -475,10 +438,9 @@ void Region::setObstacleNaca(double x, double y, bool reset)
         computeNormals();
     }
 
-    //this->showObstacle = false;
 }
 
-void Region::setObstacleRotor(double x, double y, bool reset)
+void Region::setObstacleRotor(double x, double y, double theta, bool reset)
 {
 }
 
@@ -511,6 +473,7 @@ void Region::getIbCells()
     //}	
 
     this->nib = 0;
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 2; i < f->numX - 3; i++)
     {
         for (int j = 2; j < f->numY - 3; j++)
@@ -545,6 +508,7 @@ void Region::computeNormals()
     gradsy.resize(f->numX*f->numY);
     double SMALL = 1e-012;
 
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
@@ -588,27 +552,30 @@ void Region::moveObstacle(double dt, bool reset)
 {
     computeForce();
 
-    double mass = this->density * this->volume;
     double rhobar = (this->density - this->fluid->density) / this->density;
+    double d_omega;
 
     if (this->nib != 0)
     {
-	this->ax = (1.0/mass) * this->Fx;
-        this->ay = (1.0/mass) * this->Fy + rhobar * this->gravity;
+	this->ax = (1.0/this->mass) * this->Fx + rhobar * this->gravity[0];
+        this->ay = (1.0/this->mass) * this->Fy + rhobar * this->gravity[1];
+	d_omega = (1.0/this->Ip) * this->Mz;
     }
     else
     {
         this->ax = 0.0;
         this->ay = 0.0;
+	d_omega = 0.0;
     }
 
-    double xnew = this->obstacleX + this->vx * dt + 0.5 * this->ax * pow(dt,2.0);
-    double ynew = this->obstacleY + this->vy * dt + 0.5 * this->ay * pow(dt,2.0);
-    //cout<<" verif :" << ay << " " << vy << " " << ynew << endl;
-    setObstacle(xnew, ynew, reset);
-    //cout<<" New Position "<< xnew << " " << ynew <<endl;
-    this->vx = (xnew - this->obstacleX) / dt;
-    this->vy = (ynew - this->obstacleY) / dt;
+    double x_new = this->obstacleX + this->vx * dt + 0.5 * this->ax * pow(dt,2.0);
+    double y_new = this->obstacleY + this->vy * dt + 0.5 * this->ay * pow(dt,2.0);
+    double theta_new = this->theta + this->omega * dt + 0.5 * d_omega * pow(dt,2.0);
+    cout << "NEW: " << x_new << " " << y_new << " " << theta_new << endl;
+    setObstacle(x_new, y_new, theta_new, reset);
+    this->omega = (theta_new - theta) / dt; 
+    this->vx = (x_new - this->obstacleX) / dt;
+    this->vy = (y_new - this->obstacleY) / dt;
 }
 
 
@@ -620,18 +587,27 @@ void Region::computeForce()
     double dS = this->surface/this->nib;
     double _Fx = 0.0;
     double _Fy = 0.0;
+    double _Mz = 0.0;
 
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
     	for (int j = 1; j < f->numY - 2; j++)
     	{
     	    _Fx -= f->ib[i * n + j] * f->p[i * n + j] * f->nx[i * n + j] * dS;
     	    _Fy -= f->ib[i * n + j] * f->p[i * n + j] * f->ny[i * n + j] * dS;
+
+	    double dx = (i + 0.5) * f->h - this->obstacleX;
+            double dy = (j + 0.5) * f->h - this->obstacleY;
+
+	    _Mz -= f->ib[i * n + j] * f->p[i * n + j] * (dx * f->ny[i * n + j] - dy * f->nx[i * n + j]) * dS;
+
 	}
     }
 
     this->Fx = _Fx;
     this->Fy = _Fy;
+    this->Mz = _Mz;
 
     //cout<<"Force: "<< _Fx << " " << _Fy <<endl;
 }
@@ -673,9 +649,8 @@ OBJ indexToOBJ(int index)
     {
     case 0 : return CYLINDER;
     case 1 : return SQUARE;
-    case 2 : return DIAMOND;
-    case 3 : return NACA;
-    case 4 : return ROTOR;
+    case 2 : return NACA;
+    case 3 : return ROTOR;
     default: return CYLINDER;
     }
 

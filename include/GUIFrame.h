@@ -59,6 +59,7 @@ class GUIFrame : public wxFrame
 		wxPGProperty* m_propertyGridItem_obstacle;
 		wxPGProperty* m_propertyGridItem_obs_pos;
 		wxPGProperty* m_propertyGridItem_obs_dis;
+		wxPGProperty* m_propertyGridItem_gravity;
 		wxPGProperty* m_propertyGridItem_postproc;
 		wxPGProperty* m_propertyGridItem_scalar;
 		wxPGProperty* m_propertyGridItem_tracer;
@@ -72,6 +73,7 @@ class GUIFrame : public wxFrame
 		wxPGProperty* m_propertyGridItem_resolution;
 		wxPGProperty* m_propertyGridItem_nb_cpu;
 		wxPGProperty* m_propertyGridItem_solid;
+		wxPGProperty* m_propertyGridItem_fsi;
 		wxPGProperty* m_propertyGridItem_sol_den;
 		wxPanel* m_panel_scene;
 

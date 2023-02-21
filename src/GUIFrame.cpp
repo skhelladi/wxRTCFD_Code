@@ -75,9 +75,11 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_propertyGridItem_obstacle = m_propertyGridPage->Append( new wxEnumProperty( wxT("Obstacle"), wxT("Obstacle") ,getObstacleList()) );
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_obstacle, wxT("Choose obstacle") );
 	m_propertyGridItem_obs_pos = m_propertyGridPage->Append( new wxBoolProperty( wxT("Obstacle position"), wxT("Obstacle position") ) );
-	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_obs_pos, wxT("Print obstacle pisition") );
+	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_obs_pos, wxT("Print obstacle position") );
 	m_propertyGridItem_obs_dis = m_propertyGridPage->Append( new wxBoolProperty( wxT("Obstacle display"), wxT("Obstacle display") ) );
         m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_obs_dis, wxT("Print obstacle") );
+	m_propertyGridItem_gravity = m_propertyGridPage->Append( new wxEnumProperty( wxT("Gravity options"), wxT("Gravity options"), getGravityList()) );
+        m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_gravity, wxT("Choose option for gravity") );
 	m_propertyGridItem_postproc = m_propertyGridPage->Append( new wxPropertyCategory( wxT("Post-processing"), wxT("Post-processing") ) );
 	m_propertyGridItem_scalar = m_propertyGridPage->Append( new wxEnumProperty( wxT("Scalar"), wxT("Scalar") ,getScalarList()) );
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_scalar, wxT("Show scalar field") );
@@ -100,6 +102,8 @@ GUIFrame::GUIFrame( wxWindow* parent, wxWindowID id, const wxString& title, cons
 	m_propertyGridItem_nb_cpu = m_propertyGridPage->Append( new wxIntProperty( wxT("CPU number"), wxT("CPU number") ) );
 	m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_nb_cpu, wxT("Number of threads (default = 4)") );
 	m_propertyGridItem_solid = m_propertyGridPage->Append( new wxPropertyCategory( wxT("Solid"), wxT("Solid") ) );
+	m_propertyGridItem_fsi = m_propertyGridPage->Append( new wxBoolProperty( wxT("FSI"), wxT("FSI") ) );
+        m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_fsi, wxT("Activate FSI") );
 	m_propertyGridItem_sol_den = m_propertyGridPage->Append( new wxFloatProperty( wxT("Solid density"), wxT("Solid density") ) );
         m_propertyGridPage->SetPropertyHelpString( m_propertyGridItem_sol_den, wxT("Density of the solid in kg/m³") );
 	bSizer6->Add( m_propertyGridManager, 100, wxEXPAND|wxALL, 5 );

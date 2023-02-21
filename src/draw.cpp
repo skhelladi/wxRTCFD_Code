@@ -321,21 +321,15 @@ void Draw::paint(wxDC &dc)
             dc.DrawCircle(region->cX(region->obstacleX), region->cY(region->obstacleY), region->cScale * r);
         else if (region->obstacle == SQUARE)
         {
-            vector<wxPoint> ppt = getSquarePoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
-            wxPoint *pt = fromVectorToPtr(ppt);
+	    vector<wxPoint> ppt = getSquarePoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r, region->theta);
+    	    wxPoint *pt = fromVectorToPtr(ppt);
             dc.DrawPolygon(4, pt);
             // dc.DrawRectangle(region->cX(region->obstacleX - r), region->cY(region->obstacleY + r), 2.0 * region->cScale * r, 2.0 * region->cScale * r);
         }
-        else if (region->obstacle == DIAMOND)
-        {
-            vector<wxPoint> ppt = getDiamondPoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
-            wxPoint *pt = fromVectorToPtr(ppt);
-            dc.DrawPolygon(4, pt);
-        }
         else if (region->obstacle == NACA)
         {
-            vector<wxPoint> ppt = getNacaPoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r);
-            wxPoint *pt = fromVectorToPtr(ppt);
+	    vector<wxPoint> ppt = getNacaPoints(wxPoint(region->cX(region->obstacleX),region->cY(region->obstacleY)),region->cScale * r, region->theta);
+    	    wxPoint *pt = fromVectorToPtr(ppt);
             dc.DrawPolygon(ppt.size(), pt);
         }
     }
@@ -387,7 +381,7 @@ void Draw::onMouseMoved(wxMouseEvent &event)
     double y = (region->height - my) / region->cScale;
 
     if (mouseDown)
-        region->setObstacle(x, y, false);
+        region->setObstacle(x, y, region->theta, false);
 
     Refresh();
 }
@@ -403,7 +397,7 @@ void Draw::onMouseDown(wxMouseEvent &event)
     double x = mx / region->cScale;
     double y = (region->height - my) / region->cScale;
 
-    region->setObstacle(x, y, false);
+    region->setObstacle(x, y, region->theta, false);
 
     mouseDown = true;
 

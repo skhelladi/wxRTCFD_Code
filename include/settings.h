@@ -20,20 +20,21 @@ struct Point {
 wxArrayString getCaseList();
 wxArrayString getObstacleList();
 wxArrayString getScalarList();
+wxArrayString getGravityList();
 
-vector<wxPoint> getSquarePoints(wxPoint pos, double length);
-vector<Point> getSquarePoints(Point pos, double length);
-vector<Point> getSquarePoints(Point pos, double length, double h);
+vector<wxPoint> getSquarePoints(wxPoint pos, double length, double theta);
+vector<Point> getSquarePoints(Point pos, double length, double theta);
+vector<Point> getSquarePoints(Point pos, double length, double h, double theta);
 
 vector<wxPoint> getDiamondPoints(wxPoint pos, double length);
 vector<Point> getDiamondPoints(Point pos, double length);
 vector<Point> getDiamondPoints(Point pos, double length, double h);
 
-vector<wxPoint> getNacaPoints(wxPoint pos, double length);
-vector<Point> getNacaPoints(Point pos, double length);
-vector<Point> getNacaPoints(Point pos, double length, double h);
-vector<Point> generateNacaProfile(Point pos, double chord, double thickness, int nb_points, double incidence=M_PI/12);
-vector<wxPoint> generateNacaProfile(wxPoint pos, double chord, double thickness, int nb_points, double incidence=M_PI/12);
+vector<wxPoint> getNacaPoints(wxPoint pos, double length, double theta);
+vector<Point> getNacaPoints(Point pos, double length, double theta);
+vector<Point> getNacaPoints(Point pos, double length, double h, double theta);
+vector<Point> generateNacaProfile(Point pos, double chord, double thickness, int nb_points, double incidence);
+vector<wxPoint> generateNacaProfile(wxPoint pos, double chord, double thickness, int nb_points, double incidence);
 
 vector<vector<Point>> generateRotorPoints(Point pos, double length);
 vector<vector<wxPoint>> generateRotorPoints(wxPoint pos, double length);

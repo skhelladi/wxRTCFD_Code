@@ -26,7 +26,7 @@ Fluid::Fluid(double _density, int _numX, int _numY, double _h, double _overRelax
     phi.resize(numCells);
 }
 
-void Fluid::integrate(double dt, double gravity)
+void Fluid::integrate(double dt, double gravity[2])
 {
     int n = numY;
     #pragma omp parallel for schedule(static) num_threads(numThreads)
@@ -34,9 +34,11 @@ void Fluid::integrate(double dt, double gravity)
     {
         for (int j = 1; j < numY - 1; j++)
         {
-            if (s[i * n + j] != 0.0 && s[i * n + j - 1] != 0.0)
-                #pragma omp atomic update
-                v[i * n + j] += gravity * dt;
+            //if (s[i * n + j] != 0.0 && s[i * n + j - 1] != 0.0)
+	    //if (s[i * n + j] != 0.0)
+            //    #pragma omp atomic update
+	    //    u[i * n + j] += gravity[0] * dt;
+            //    v[i * n + j] += gravity[1] * dt;
         }
     }
 }
@@ -256,7 +258,7 @@ void Fluid::advectTracer(double dt)
     m=newM;
 }
 
-void Fluid::simulate(double dt, double gravity, int numIters)
+void Fluid::simulate(double dt, double gravity[2], int numIters)
 {
     integrate(dt, gravity);
     fill(p.begin(),p.end(),0.0);

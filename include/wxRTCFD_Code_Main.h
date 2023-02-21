@@ -44,6 +44,7 @@ private:
     void OnScalarPropertyChanged(int value);
     void OnObstaclePositionPropertyChanged(bool value);
     void OnObstacleDisplayPropertyChanged(bool value);
+    void OnGravityPropertyChanged(int value);
     void OnTracerPropertyChanged(bool value);
     void OnStreamlinesPropertyChanged(bool value);
     void OnVelocityVectorsPropertyChanged(bool value);
@@ -52,8 +53,8 @@ private:
     void OnOverrelaxationPropertyChanged(double value);
     void OnResolutionPropertyChanged(int value);
     void OnNumThreadsPropertyChanged(int value);
+    void OnFSIPropertyChanged(bool value);
     void OnSolidDensityPropertyChanged(double value);
-
 
     bool compute;
 };
