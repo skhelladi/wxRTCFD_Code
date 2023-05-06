@@ -56,6 +56,10 @@ ________________________
 <img src="doc/fig_6.png" width="400" height="200" /> <img src="doc/fig_7.png" width="400" height="200" />
 _______________________
 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=hqhZNt9UP4Q" target="_blank">
+ <img src="doc/fig_4.png" alt="Watch the video" width="240" height="180" border="10" />
+</a>
+
 <!-- ## Tutorial -->
 
 <!-- [![Tutorial](https://img.youtube.com/vi/gvOE69KHmwU/0.jpg)](https://www.youtube.com/watch?v=gvOE69KHmwU) -->
