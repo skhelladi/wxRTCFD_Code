@@ -16,8 +16,6 @@ First, make sure the following libraries are installed. Mainly
 - wxWidgets
 - OpenMP
 
-
-
 ### Install an build
 #### 1. Using cmake (command-line)
 ```
@@ -56,13 +54,9 @@ ________________________
 <img src="doc/fig_6.png" width="400" height="200" /> <img src="doc/fig_7.png" width="400" height="200" />
 _______________________
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=hqhZNt9UP4Q" target="_blank">
- <img src="doc/fig_4.png" alt="Watch the video" width="240" height="180" border="10" />
-</a>
+## Tutorial (on Youtube)
 
-<!-- ## Tutorial -->
-
-<!-- [![Tutorial](https://img.youtube.com/vi/gvOE69KHmwU/0.jpg)](https://www.youtube.com/watch?v=gvOE69KHmwU) -->
+[![Tutorial](doc/fig_4.png)](http://www.youtube.com/watch?feature=player_embedded&v=hqhZNt9UP4Q)
 
 ## License
 This project is licensed under the GPL-3 license.
