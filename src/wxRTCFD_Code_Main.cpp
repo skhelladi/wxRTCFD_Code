@@ -64,8 +64,10 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     m_propertyGridItem_nb_cpu->SetValue(4);
 
     //    m_panel_scene->SetBackgroundColour( *wxWHITE);
+    int initialWidth = 1024;
+    int initialHeight = 500;
 
-    region = make_shared<Region>(500, 1024, 1.0);
+    region = make_shared<Region>(initialHeight, initialWidth, 1.0);
     region->setupRegion(-1, 1.9);
     draw = new Draw(m_panel_scene, region);
 
@@ -79,6 +81,11 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     this->Connect(wxEVT_TIMER, wxTimerEventHandler(Draw::animate), NULL, this);
 
     compute = true;
+
+    // full screen main window
+    SetSize(initialWidth, initialHeight);
+    Center();
+
 }
 
 wxRTCFD_Code_Frame::~wxRTCFD_Code_Frame()
@@ -124,7 +131,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
     int regionNr = m_propertyGridItem_case->GetValue().GetLong();
 
     wxAny value;
-    
+
     value = m_propertyGridItem_obstacle->GetValue();
     draw->region->obstacle = indexToOBJ(value.As<int>());
 
@@ -149,10 +156,7 @@ void wxRTCFD_Code_Frame::onRunButtonClick(wxCommandEvent &event)
     value = m_propertyGridItem_density->GetValue();
     draw->region->fluid->density = value.As<double>();
 
-    
     // draw->region->updateRegionSize(draw->height(),draw->width());
-
-    cout<<"FALG"<<endl;
 
     if (compute)
     {

@@ -1,5 +1,6 @@
 #include "region.h"
 
+
 Region::Region(int _height, int _width, double _simHeight)
 {
     height = _height;
@@ -56,9 +57,9 @@ void Region::setupRegion(int _RegionNr, double _overRelaxation, int _resolution,
 
     int n = f->numY;
     Point pos;
-    if(obstacle!=ROTOR)
+    if (obstacle != ROTOR)
     {
-      pos = {0.4,0.5};
+        pos = { 0.4, 0.5 };
     }
 
     if (RegionNr == 0)
@@ -251,7 +252,7 @@ void Region::setObstacleSquare(double x, double y, bool reset)
     vector<Point> P = getSquarePoints(Point({x, y}), r);
 
     int n = f->numY;
-    #pragma omp parallel for schedule(static) num_threads(f->numThreads)
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
     for (int i = 1; i < f->numX - 2; i++)
     {
         for (int j = 1; j < f->numY - 2; j++)
@@ -261,7 +262,7 @@ void Region::setObstacleSquare(double x, double y, bool reset)
 
             // double dx = (i + 0.5) * f->h - x;
             // double dy = (j + 0.5) * f->h - y;
-            
+
             // if (fabs(dx)<r&&fabs(dy)<r)
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
@@ -318,7 +319,7 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
 
             // if (fabs(dxb) < r && fabs(dyb) < r)
             // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
-            
+
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
                 f->s[i * n + j] = 0.0;
@@ -374,7 +375,7 @@ void Region::setObstacleNaca(double x, double y, bool reset)
 
             // if (fabs(dxb) < r && fabs(dyb) < r)
             // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
-            
+
             if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
             {
                 f->s[i * n + j] = 0.0;
@@ -430,12 +431,17 @@ OBJ indexToOBJ(int index)
 {
     switch (index)
     {
-    case 0 : return CYLINDER;
-    case 1 : return SQUARE;
-    case 2 : return DIAMOND;
-    case 3 : return NACA;
-    case 4 : return ROTOR;
-    default: return CYLINDER;
+    case 0:
+        return CYLINDER;
+    case 1:
+        return SQUARE;
+    case 2:
+        return DIAMOND;
+    case 3:
+        return NACA;
+    case 4:
+        return ROTOR;
+    default:
+        return CYLINDER;
     }
-    
 }

@@ -14,10 +14,10 @@ Fluid::Fluid(double _density, int _numX, int _numY, double _h, double _overRelax
     Vel.resize(numCells);
     p.resize(numCells);
     s.resize(numCells);
-    m.resize(numCells,1.0);
+    m.resize(numCells, 1.0);
     newM.resize(numCells);
     num = numX * numY;
-    cnt=0;
+    cnt = 0;
     overRelaxation = _overRelaxation;
     numThreads = _numThreads;
 }
@@ -25,13 +25,13 @@ Fluid::Fluid(double _density, int _numX, int _numY, double _h, double _overRelax
 void Fluid::integrate(double dt, double gravity)
 {
     int n = numY;
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int i = 1; i < numX; i++)
     {
         for (int j = 1; j < numY - 1; j++)
         {
             if (s[i * n + j] != 0.0 && s[i * n + j - 1] != 0.0)
-                #pragma omp atomic update
+#pragma omp atomic update
                 v[i * n + j] += gravity * dt;
         }
     }
@@ -40,7 +40,7 @@ void Fluid::integrate(double dt, double gravity)
 void Fluid::solveIncompressibility(int numIters, double dt)
 {
     int n = numY;
-    double cp = density * h / dt;
+    double cp = density * h * h / dt;
     for (int iter = 0; iter < numIters; iter++)
     {
 #pragma omp parallel for schedule(static) num_threads(numThreads)
@@ -64,17 +64,17 @@ void Fluid::solveIncompressibility(int numIters, double dt)
                 double div = u[(i + 1) * n + j] - u[i * n + j] + v[i * n + j + 1] - v[i * n + j];
 
                 double _p = -div / _s;
-                #pragma omp atomic update
+#pragma omp atomic update
                 _p *= overRelaxation;
-                #pragma omp atomic update
+#pragma omp atomic update
                 p[i * n + j] += cp * _p;
-                #pragma omp atomic update
+#pragma omp atomic update
                 u[i * n + j] -= sx0 * _p;
-                #pragma omp atomic update
+#pragma omp atomic update
                 u[(i + 1) * n + j] += sx1 * _p;
-                #pragma omp atomic update
+#pragma omp atomic update
                 v[i * n + j] -= sy0 * _p;
-                #pragma omp atomic update
+#pragma omp atomic update
                 v[i * n + j + 1] += sy1 * _p;
             }
         }
@@ -84,13 +84,13 @@ void Fluid::solveIncompressibility(int numIters, double dt)
 void Fluid::extrapolate()
 {
     int n = numY;
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int i = 0; i < numX; i++)
     {
         u[i * n + 0] = u[i * n + 1];
         u[i * n + numY - 1] = u[i * n + numY - 2];
     }
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int j = 0; j < numY; j++)
     {
         v[0 * n + j] = v[1 * n + j];
@@ -152,25 +152,27 @@ double Fluid::avgU(int i, int j)
 {
     int n = numY;
     return (u[i * n + j - 1] + u[i * n + j] +
-            u[(i + 1) * n + j - 1] + u[(i + 1) * n + j]) * 0.25;
+            u[(i + 1) * n + j - 1] + u[(i + 1) * n + j]) *
+           0.25;
 }
 
 double Fluid::avgV(int i, int j)
 {
     int n = numY;
     return (v[(i - 1) * n + j] + v[i * n + j] +
-            v[(i - 1) * n + j + 1] + v[i * n + j + 1]) * 0.25;
+            v[(i - 1) * n + j + 1] + v[i * n + j + 1]) *
+           0.25;
 }
 
 void Fluid::computeVelosityMagnitude()
 {
     int n = numY;
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int i = 0; i < numX; i++)
     {
         for (int j = 0; j < numY; j++)
         {
-            Vel[i * n + j]=sqrt(pow(u[i * n + j],2)+pow(v[i * n + j],2));
+            Vel[i * n + j] = sqrt(pow(u[i * n + j], 2) + pow(v[i * n + j], 2));
         }
     }
 }
@@ -182,12 +184,12 @@ void Fluid::advectVelocity(double dt)
 
     int n = numY;
     double h2 = 0.5 * h;
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int i = 1; i < numX; i++)
     {
         for (int j = 1; j < numY; j++)
         {
-            #pragma omp atomic update
+#pragma omp atomic update
             cnt++;
 
             // u component
@@ -198,9 +200,9 @@ void Fluid::advectVelocity(double dt)
                 double _u = u[i * n + j];
                 double _v = avgV(i, j);
 
-                #pragma omp atomic update
+#pragma omp atomic update
                 x -= dt * _u;
-                #pragma omp atomic update
+#pragma omp atomic update
                 y -= dt * _v;
                 _u = sampleField(x, y, U_FIELD);
                 newU[i * n + j] = _u;
@@ -212,9 +214,9 @@ void Fluid::advectVelocity(double dt)
                 double y = j * h;
                 double _u = avgU(i, j);
                 double _v = v[i * n + j];
-                #pragma omp atomic update
+#pragma omp atomic update
                 x -= dt * _u;
-                #pragma omp atomic update
+#pragma omp atomic update
                 y -= dt * _v;
                 _v = sampleField(x, y, V_FIELD);
                 newV[i * n + j] = _v;
@@ -222,17 +224,17 @@ void Fluid::advectVelocity(double dt)
         }
     }
 
-    u=newU;
-    v=newV;
+    u = newU;
+    v = newV;
 }
 
 void Fluid::advectTracer(double dt)
 {
-    newM=m;
+    newM = m;
 
     int n = numY;
     double h2 = 0.5 * h;
-    #pragma omp parallel for schedule(static) num_threads(numThreads)
+#pragma omp parallel for schedule(static) num_threads(numThreads)
     for (int i = 1; i < numX - 1; i++)
     {
         for (int j = 1; j < numY - 1; j++)
@@ -249,13 +251,13 @@ void Fluid::advectTracer(double dt)
             }
         }
     }
-    m=newM;
+    m = newM;
 }
 
 void Fluid::simulate(double dt, double gravity, int numIters)
 {
     integrate(dt, gravity);
-    fill(p.begin(),p.end(),0.0);
+    fill(p.begin(), p.end(), 0.0);
     solveIncompressibility(numIters, dt);
     extrapolate();
     advectVelocity(dt);
@@ -272,7 +274,7 @@ void Fluid::updateFluidParameters()
     newV.resize(numCells);
     p.resize(numCells);
     s.resize(numCells);
-    m.resize(numCells,1.0);
+    m.resize(numCells, 1.0);
     newM.resize(numCells);
     num = numX * numY;
 }
