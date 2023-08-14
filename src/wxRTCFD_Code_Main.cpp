@@ -81,7 +81,7 @@ wxRTCFD_Code_Frame::wxRTCFD_Code_Frame(wxFrame *frame)
     this->Connect(wxEVT_TIMER, wxTimerEventHandler(Draw::animate), NULL, this);
 
     compute = true;
-
+    SetIcon(wxIcon(wxT("../pics/icon.xpm"), wxBITMAP_TYPE_XPM));
     // full screen main window
     SetSize(initialWidth, initialHeight);
     Center();

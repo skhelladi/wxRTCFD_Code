@@ -576,6 +576,13 @@
                                                     <property name="permission">protected</property>
                                                     <property name="type">Int</property>
                                                 </object>
+<object class="propGridItem" expanded="0">
+    <property name="help">CPU number</property>
+    <property name="label">Number of threads (default = 4)</property>
+    <property name="name">m_propertyGridItem_nb_cpu</property>
+    <property name="permission">protected</property>
+    <property name="type">Int</property>
+</object>
                                             </object>
                                         </object>
                                     </object>
