@@ -417,9 +417,10 @@ void Region::setObstacleRotor(double x, double y, bool reset)
     int n = f->numY;
     Point center = { x, y };
     Point pos = { x - 0.1, y - 0.3 };
-    pos = rotatePolygon({ pos }, center, rotation_angle)[0];
+    // pos = rotatePolygon({ pos }, center, rotation_angle)[0];
     // cout << "rotation_angle = " << rotation_angle << endl;
     vector<Point> P1 = getNacaPoints(pos, r * 0.5);
+    P1 = rotatePolygon(P1, center, -rotation_angle);
     vector<Point> P2 = rotatePolygon(P1, center, 2.0 * M_PI / 3);
     vector<Point> P3 = rotatePolygon(P1, center, 4.0 * M_PI / 3);
     //    double cd = sqrt(2) * f->h;

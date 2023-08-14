@@ -341,17 +341,19 @@ void Draw::paint(wxDC& dc)
             wxPoint center(region->cX(region->obstacleX), region->cY(region->obstacleY));
             wxPoint pos(region->cX(region->obstacleX - 0.1), region->cY(region->obstacleY - 0.3));
 
-            pos = rotatePolygon({ pos }, center, -rotation_angle)[0];
-            region->setObstacle(region->obstacleX, region->obstacleY, true);
+            // pos = rotatePolygon({ pos }, center, -rotation_angle)[0];
+            region->setObstacleRotor(region->obstacleX, region->obstacleY, true);
 
             // cout << "Draw - rotation_angle = " << rotation_angle << endl;
 
             vector<wxPoint> ppt = getNacaPoints(pos, region->cScale * r * 0.5);
+            ppt = rotatePolygon(ppt, center, rotation_angle);
             wxPoint* pt = fromVectorToPtr(ppt);
             dc.DrawPolygon(ppt.size(), pt);
             wxGraphicsContext* gc = wxGraphicsContext::Create(&dc);
 
             vector<wxPoint> ppt2 = rotatePolygon(ppt, center, 2.0 * M_PI / 3);
+            // ppt2 = rotatePolygon(ppt2, center, -rotation_angle);
             wxPoint* pt2 = fromVectorToPtr(ppt2);
             dc.DrawPolygon(ppt.size(), pt2);
 
