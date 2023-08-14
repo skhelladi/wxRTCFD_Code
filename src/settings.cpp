@@ -19,6 +19,7 @@ wxArrayString getObstacleList()
     arrObject.Add("Diamond");
     arrObject.Add("NACA");
     arrObject.Add("Rotor");
+    arrObject.Add("Multi-Objects");
 
     return arrObject;
 }

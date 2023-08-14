@@ -5,13 +5,17 @@
 
 #define DEBUG 0
 
+extern double rotation_angle;
+
+
 enum OBJ
 {
     CYLINDER,
     SQUARE,
     DIAMOND,
     NACA,
-    ROTOR
+    ROTOR,
+    MULTI_OBJECTS
 };
 
 // #define CALL_SET_OBSTACLE(object,ptrToMember)  (object.*ptrToMember)
@@ -44,6 +48,7 @@ public:
     void setObstacleDiamond(double x, double y, bool reset);
     void setObstacleNaca(double x, double y, bool reset);
     void setObstacleRotor(double x, double y, bool reset);
+    void setObstacleMultiObjectsComponent(double x, double y, bool reset);
     void updateRegionSize(int _height, int _width);
     void update();
 

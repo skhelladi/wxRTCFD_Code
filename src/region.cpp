@@ -1,5 +1,6 @@
 #include "region.h"
 
+double rotation_angle = 0.0;
 
 Region::Region(int _height, int _width, double _simHeight)
 {
@@ -178,6 +179,9 @@ void Region::setObstacle(double x, double y, bool reset)
     case ROTOR:
         setObstacleRotor(x, y, reset);
         break;
+    case MULTI_OBJECTS:
+        setObstacleMultiObjectsComponent(x, y, reset);
+        break;
     default:
         setObstacleCylinder(x, y, reset);
     }
@@ -249,7 +253,7 @@ void Region::setObstacleSquare(double x, double y, bool reset)
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
 
-    vector<Point> P = getSquarePoints(Point({x, y}), r);
+    vector<Point> P = getSquarePoints(Point({ x, y }), r);
 
     int n = f->numY;
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
@@ -264,7 +268,7 @@ void Region::setObstacleSquare(double x, double y, bool reset)
             // double dy = (j + 0.5) * f->h - y;
 
             // if (fabs(dx)<r&&fabs(dy)<r)
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 2)
@@ -299,7 +303,7 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
-    Point center = {x, y};
+    Point center = { x, y };
     vector<Point> P = getDiamondPoints(center, r);
     //    double cd = sqrt(2) * f->h;
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
@@ -320,7 +324,7 @@ void Region::setObstacleDiamond(double x, double y, bool reset)
             // if (fabs(dxb) < r && fabs(dyb) < r)
             // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
 
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 2)
@@ -355,7 +359,7 @@ void Region::setObstacleNaca(double x, double y, bool reset)
     double r = this->characteristic_length;
     shared_ptr<Fluid> f = this->fluid;
     int n = f->numY;
-    Point center = {x, y};
+    Point center = { x, y };
     vector<Point> P = getNacaPoints(center, r);
     //    double cd = sqrt(2) * f->h;
 #pragma omp parallel for schedule(static) num_threads(f->numThreads)
@@ -376,7 +380,7 @@ void Region::setObstacleNaca(double x, double y, bool reset)
             // if (fabs(dxb) < r && fabs(dyb) < r)
             // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
 
-            if (isInsidePolygon(P, Point({(i + 0.5) * f->h, (j + 0.5) * f->h})))
+            if (isInsidePolygon(P, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })))
             {
                 f->s[i * n + j] = 0.0;
                 if (this->RegionNr == 2)
@@ -397,6 +401,121 @@ void Region::setObstacleNaca(double x, double y, bool reset)
 
 void Region::setObstacleRotor(double x, double y, bool reset)
 {
+    double vx = 0.0;
+    double vy = 0.0;
+
+    if (!reset)
+    {
+        vx = (x - this->obstacleX) / this->dt;
+        vy = (y - this->obstacleY) / this->dt;
+    }
+
+    this->obstacleX = x;
+    this->obstacleY = y;
+    double r = this->characteristic_length;
+    shared_ptr<Fluid> f = this->fluid;
+    int n = f->numY;
+    Point center = { x, y };
+    Point pos = { x - 0.1, y - 0.3 };
+    pos = rotatePolygon({ pos }, center, rotation_angle)[0];
+    // cout << "rotation_angle = " << rotation_angle << endl;
+    vector<Point> P1 = getNacaPoints(pos, r * 0.5);
+    vector<Point> P2 = rotatePolygon(P1, center, 2.0 * M_PI / 3);
+    vector<Point> P3 = rotatePolygon(P1, center, 4.0 * M_PI / 3);
+    //    double cd = sqrt(2) * f->h;
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
+    for (int i = 1; i < f->numX - 2; i++)
+    {
+        for (int j = 1; j < f->numY - 2; j++)
+        {
+
+            f->s[i * n + j] = 1.0;
+
+            // double dx = (i + 0.5) * f->h - x;
+            // double dy = (j + 0.5) * f->h - y;
+
+            // //! axis change by a rotation of theta=pi/4
+            // double dxb = sqrt(2) / 2 * (dx + dy);
+            // double dyb = sqrt(2) / 2 * (-dx + dy);
+
+            // if (fabs(dxb) < r && fabs(dyb) < r)
+            // Point M = {(i + 0.5) * f->h ,(j + 0.5) * f->h };
+            bool isInside = isInsidePolygon(P1, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })) ||
+                isInsidePolygon(P2, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })) ||
+                isInsidePolygon(P3, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h }));
+            if (isInside)
+            {
+                f->s[i * n + j] = 0.0;
+                if (this->RegionNr == 2)
+                    f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
+                else
+                    f->m[i * n + j] = 1.0;
+
+                f->u[i * n + j] = vx;
+                f->u[(i + 1) * n + j] = vx;
+                f->v[i * n + j] = vy;
+                f->v[i * n + j + 1] = vy;
+            }
+        }
+    }
+
+    this->showObstacle = true;
+}
+
+void Region::setObstacleMultiObjectsComponent(double x, double y, bool reset)
+{
+    double vx = 0.0;
+    double vy = 0.0;
+
+    if (!reset)
+    {
+        vx = (x - this->obstacleX) / this->dt;
+        vy = (y - this->obstacleY) / this->dt;
+    }
+
+    this->obstacleX = x;
+    this->obstacleY = y;
+    double r = this->characteristic_length * 0.5;
+    shared_ptr<Fluid> f = this->fluid;
+
+    vector<Point> P1 = getSquarePoints(Point({ x, y }), r);
+    vector<Point> P2 = getSquarePoints(Point({ x + 0.4, y }), r);
+    vector<Point> P3 = getSquarePoints(Point({ x + 0.8, y }), r);
+
+
+    int n = f->numY;
+#pragma omp parallel for schedule(static) num_threads(f->numThreads)
+    for (int i = 1; i < f->numX - 2; i++)
+    {
+        for (int j = 1; j < f->numY - 2; j++)
+        {
+
+            f->s[i * n + j] = 1.0;
+
+            // double dx = (i + 0.5) * f->h - x;
+            // double dy = (j + 0.5) * f->h - y;
+
+            // if (fabs(dx)<r&&fabs(dy)<r)
+            bool isInside = isInsidePolygon(P1, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })) ||
+                isInsidePolygon(P2, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h })) ||
+                isInsidePolygon(P3, Point({ (i + 0.5) * f->h, (j + 0.5) * f->h }));
+            if (isInside)
+            {
+                f->s[i * n + j] = 0.0;
+                if (this->RegionNr == 2)
+                    f->m[i * n + j] = 0.5 + 0.5 * sin(0.1 * this->frameNr);
+                else
+                    f->m[i * n + j] = 1.0;
+
+                f->u[i * n + j] = vx;
+                f->u[(i + 1) * n + j] = vx;
+                f->v[i * n + j] = vy;
+                f->v[i * n + j + 1] = vy;
+            }
+        }
+    }
+
+    this->showObstacle = true;
 }
 
 void Region::updateRegionSize(int _height, int _width)
@@ -423,6 +542,7 @@ void Region::update()
 {
     if (!paused)
     {
+        rotation_angle = (rotation_angle > 360.0) ? 0.0 : rotation_angle + 0.025;
         fluid->simulate(dt, gravity, numIters);
     }
 }
@@ -441,6 +561,8 @@ OBJ indexToOBJ(int index)
         return NACA;
     case 4:
         return ROTOR;
+    case 5:
+        return MULTI_OBJECTS;
     default:
         return CYLINDER;
     }

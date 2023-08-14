@@ -4,11 +4,13 @@
 #include <wx/wx.h>
 #include <wx/dcclient.h>
 #include <wx/rawbmp.h>
+#include <wx/graphics.h>
 #include <iostream>
 
 #include "region.h"
 
 using namespace std;
+
 
 class Draw : public wxPanel
 {
