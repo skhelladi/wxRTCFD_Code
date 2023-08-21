@@ -40,7 +40,7 @@ void Fluid::integrate(double dt, double gravity)
 void Fluid::solveIncompressibility(int numIters, double dt)
 {
     int n = numY;
-    double cp = density * h * h / dt;
+    double cp = density * h / dt;
     for (int iter = 0; iter < numIters; iter++)
     {
 #pragma omp parallel for schedule(static) num_threads(numThreads)
@@ -129,21 +129,21 @@ double Fluid::sampleField(double x, double y, int field)
         break;
     }
 
-    double x0 = fmin(floor((x - dx) * h1), numX - 1);
+    int x0 = fmin(floor((x - dx) * h1), numX - 1);
+    int x1 = fmin(x0 + 1, numX - 1);
     double tx = ((x - dx) - x0 * h) * h1;
-    double x1 = fmin(x0 + 1, numX - 1);
 
-    double y0 = fmin(floor((y - dy) * h1), numY - 1);
+    int y0 = fmin(floor((y - dy) * h1), numY - 1);
+    int y1 = fmin(y0 + 1, numY - 1);
     double ty = ((y - dy) - y0 * h) * h1;
-    double y1 = fmin(y0 + 1, numY - 1);
 
     double sx = 1.0 - tx;
     double sy = 1.0 - ty;
 
     double val = sx * sy * f[x0 * n + y0] +
-                 tx * sy * f[x1 * n + y0] +
-                 tx * ty * f[x1 * n + y1] +
-                 sx * ty * f[x0 * n + y1];
+        tx * sy * f[x1 * n + y0] +
+        tx * ty * f[x1 * n + y1] +
+        sx * ty * f[x0 * n + y1];
 
     return val;
 }
@@ -152,16 +152,16 @@ double Fluid::avgU(int i, int j)
 {
     int n = numY;
     return (u[i * n + j - 1] + u[i * n + j] +
-            u[(i + 1) * n + j - 1] + u[(i + 1) * n + j]) *
-           0.25;
+        u[(i + 1) * n + j - 1] + u[(i + 1) * n + j]) *
+        0.25;
 }
 
 double Fluid::avgV(int i, int j)
 {
     int n = numY;
     return (v[(i - 1) * n + j] + v[i * n + j] +
-            v[(i - 1) * n + j + 1] + v[i * n + j + 1]) *
-           0.25;
+        v[(i - 1) * n + j + 1] + v[i * n + j + 1]) *
+        0.25;
 }
 
 void Fluid::computeVelosityMagnitude()
